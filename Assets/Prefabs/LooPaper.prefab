@@ -55,6 +55,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -103,8 +104,9 @@ GameObject:
   - component: {fileID: 9168925820520868122}
   - component: {fileID: 3808278592543349396}
   - component: {fileID: 4388118801100386438}
+  - component: {fileID: 2528641963513441771}
   m_Layer: 0
-  m_Name: Toipaper
+  m_Name: LooPaper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,6 +155,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 042f3debd2e79b74b83c1e61384b96db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RB: {fileID: 0}
-  Col: {fileID: 0}
-  location: 0
+  maxNoInShelf: 10
+  rigid: {fileID: 3808278592543349396}
+  spawnOffset: -0.5
+--- !u!114 &2528641963513441771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5288853980751551241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7951b3f97a0d94e920b2786560a8cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thisItem: {fileID: 0}
+  shoppingCart: {fileID: 0}

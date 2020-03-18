@@ -6,22 +6,28 @@ using UnityEngine;
 public class ShelfTrigger : MonoBehaviour
 {
     [SerializeField]
-    eShelfSide side;
+    Movement cart;
     [SerializeField]
     bool justHit;
 
-    public event Action<eShelfSide, float> HitByCart;
+    private void Start()
+    {
+        cart = FindObjectOfType<Movement>();
+    }
+
+    public event Action<float> HitByCart = delegate { };
     private void OnTriggerEnter(Collider other)
     {
-        justHit = true;
-        Movement player = other.GetComponentInParent<Movement>() ? other.GetComponentInParent<Movement>() : null;
-        float speed = player.GetSpeed();
 
-        if (player != null && speed > 0.25f)
+        //Debug.Log(this.gameObject.name + " was hit by " + other.gameObject.name);
+        float speed = cart.GetSpeed();
+
+        if (other.gameObject.GetComponentInParent<Movement>() && speed > 0.25f)
         {
-            Debug.Log(this.gameObject.name + " was hit by the cart at speed "+speed);
-            HitByCart(side, speed);
-            justHit = false;
+            justHit = true;
+            //Debug.Log(this.gameObject.name + " was hit by the cart at speed " + speed);
+            HitByCart(speed);
         }
+        justHit = false;
     }
 }

@@ -5,109 +5,155 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    [SerializeField]
-    Rigidbody RB;
-    [SerializeField]
-    eItemLocation location = eItemLocation.shelf;
+    public int maxNoInShelf;
 
-    public delegate void FellOffShelf(Item item);
-    public event FellOffShelf Unshelved;
-
-    public static event Action<Item, eCartUpdate> UpdateCart = delegate { };
+    [SerializeField]
+    Rigidbody rigid;
+    [SerializeField]
+    float spawnOffset;
+    public float SpawnOffset { get { return spawnOffset; } }
+    private int shelfID = int.MinValue;
+    public int ShelfID
+    {
+        get { return shelfID; }
+        set
+        {
+            if (shelfID == int.MinValue && value != int.MinValue)
+            {
+                shelfID = value;
+            }               
+        }
+    }
 
     private void Awake()
     {
-        RB = GetComponentInChildren<Rigidbody>();      
+        rigid = GetComponentInChildren<Rigidbody>();
     }
 
-    public virtual void ThrowItem(Vector3 vel)
+    private void OnEnable()
     {
-        RB.isKinematic = false;
-        RB.velocity = (vel);
+        StartCoroutine(QuickGravityCheck());        
     }
 
-    public eItemLocation currentLocation()
+    IEnumerator QuickGravityCheck()
     {
-        return location;
+        rigid.isKinematic = false;
+        yield return new WaitForSeconds(0.1f);
+        rigid.isKinematic = true;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void Move(Vector3 _pushForce)
     {
-        if (location != eItemLocation.ground)
-        {
-            if (HitTheFloor(other))
-            {
-                Debug.Log(this.gameObject.name + " fell off the cart");
-                location = eItemLocation.ground;
-                UpdateCart(this, eCartUpdate.remove);
-                return;
-            }
-        }
-
-        if (HitTheCart(other) && location != eItemLocation.cart)
-        {
-            Debug.Log(this.gameObject.name + " fell into the cart");
-            if (location == eItemLocation.shelf)
-                UnshelfItem();
-
-            location = eItemLocation.cart;
-            UpdateCart(this, eCartUpdate.add);
-        }
+        rigid.isKinematic = false;
+        rigid.velocity = _pushForce;
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (LeftTheCart(other))
-        {
-            Debug.Log(this.gameObject.name + " fell off the cart");
-            location = eItemLocation.ground;
-            UpdateCart(this, eCartUpdate.remove);
-            return;
-        }
 
-        if (LeftTheShelf(other))
-        {
-            Debug.Log(this.gameObject.name + " fell off the shelf");
-            UnshelfItem();
-            location = eItemLocation.ground;
-        }
-    }
 
-    bool LeftTheShelf(Collider other)
-    {
-        if (other.gameObject.GetComponentInParent<Shelf>())
-            return true;
 
-        return false;
-    }
+    //[SerializeField]
+    //Rigidbody RB;
+    //[SerializeField]
+    //eItemLocation location = eItemLocation.shelf;
 
-    bool LeftTheCart(Collider other)
-    {
-        if (other.gameObject.GetComponentInParent<Cart>())
-            return true;
+    //public delegate void FellOffShelf(Item item);
+    //public event FellOffShelf Unshelved;
 
-        return false;
-    }
+    //public static event Action<Item, eCartUpdate> UpdateCart = delegate { };
 
-    bool HitTheCart(Collider other)
-    {
-        if (other.gameObject.GetComponentInParent<Cart>())
-            return true;
+    //private void Awake()
+    //{
+    //    RB = GetComponentInChildren<Rigidbody>();      
+    //}
 
-        return false;
-    }
+    //public virtual void ThrowItem(Vector3 vel)
+    //{
+    //    RB.isKinematic = false;
+    //    RB.velocity = (vel);
+    //}
 
-    bool HitTheFloor(Collider other)
-    {
-        if (!other.gameObject.layer.Equals(8))
-            return true;
+    //public eItemLocation currentLocation()
+    //{
+    //    return location;
+    //}
 
-        return false;
-    }
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (location != eItemLocation.ground)
+    //    {
+    //        if (HitTheFloor(other))
+    //        {
+    //            Debug.Log(this.gameObject.name + " fell off the cart");
+    //            location = eItemLocation.ground;
+    //            UpdateCart(this, eCartUpdate.remove);
+    //            return;
+    //        }
+    //    }
 
-    void UnshelfItem()
-    {
-        if (location == eItemLocation.shelf)
-            Unshelved(this);
-    }
+    //    if (HitTheCart(other) && location != eItemLocation.cart)
+    //    {
+    //        Debug.Log(this.gameObject.name + " fell into the cart");
+    //        if (location == eItemLocation.shelf)
+    //            UnshelfItem();
+
+    //        location = eItemLocation.cart;
+    //        UpdateCart(this, eCartUpdate.add);
+    //    }
+    //}
+
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    if (LeftTheCart(other))
+    //    {
+    //        Debug.Log(this.gameObject.name + " fell off the cart");
+    //        location = eItemLocation.ground;
+    //        UpdateCart(this, eCartUpdate.remove);
+    //        return;
+    //    }
+
+    //    if (LeftTheShelf(other))
+    //    {
+    //        Debug.Log(this.gameObject.name + " fell off the shelf");
+    //        UnshelfItem();
+    //        location = eItemLocation.ground;
+    //    }
+    //}
+
+    //bool LeftTheShelf(Collider other)
+    //{
+    //    if (other.gameObject.GetComponentInParent<Shelf>())
+    //        return true;
+
+    //    return false;
+    //}
+
+    //bool LeftTheCart(Collider other)
+    //{
+    //    if (other.gameObject.GetComponentInParent<Cart>())
+    //        return true;
+
+    //    return false;
+    //}
+
+    //bool HitTheCart(Collider other)
+    //{
+    //    if (other.gameObject.GetComponentInParent<Cart>())
+    //        return true;
+
+    //    return false;
+    //}
+
+    //bool HitTheFloor(Collider other)
+    //{
+    //    if (!other.gameObject.layer.Equals(8))
+    //        return true;
+
+    //    return false;
+    //}
+
+    //void UnshelfItem()
+    //{
+    //    if (location == eItemLocation.shelf)
+    //        Unshelved(this);
+    //}
 }

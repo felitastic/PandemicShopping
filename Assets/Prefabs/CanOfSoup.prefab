@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 4262948795281022331}
   - component: {fileID: 8110283111715660991}
   - component: {fileID: 920029501684136781}
+  - component: {fileID: 6805565867329743596}
   m_Layer: 0
-  m_Name: Can
+  m_Name: CanOfSoup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,9 +62,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b95fd1ed8851cd4cae4527bfbe49901, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RB: {fileID: 0}
-  Col: {fileID: 0}
-  location: 0
+  maxNoInShelf: 12
+  rigid: {fileID: 8110283111715660991}
+  spawnOffset: -0.4
+--- !u!114 &6805565867329743596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968925445786529640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7951b3f97a0d94e920b2786560a8cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thisItem: {fileID: 0}
+  shoppingCart: {fileID: 0}
 --- !u!1 &6736850819645803253
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,6 +134,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

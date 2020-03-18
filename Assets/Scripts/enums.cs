@@ -1,3 +1,2 @@
 ﻿public enum eItemLocation { shelf, cart, ground }
-public enum eCartUpdate { add, remove, checkout}
-public enum eShelfSide { front, back, side}
+public enum eShelfFaceDirection { down, right, up, left }

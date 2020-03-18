@@ -13,38 +13,38 @@ public class Cart : MonoBehaviour
 
     private void Awake()
     {
-        Item.UpdateCart += UpdateCart;
+        //Item.UpdateCart += UpdateCart;
         cartList.ClearList();
     }
 
-    void UpdateCart(Item newItem, eCartUpdate updateType)
-    {
-            switch (updateType)
-            {
-                case eCartUpdate.add:
-                    if (cartList.Contains(newItem))
-                        return;
+    //void UpdateCart(Item newItem, eCartUpdate updateType)
+    //{
+    //        switch (updateType)
+    //        {
+    //            case eCartUpdate.add:
+    //                if (cartList.Contains(newItem))
+    //                    return;
 
-                    cartList.AddToList(newItem);
-                    UpdateCartList(NewInventoryList());
+    //                cartList.AddToList(newItem);
+    //                UpdateCartList(NewInventoryList());
 
-                    break;
-                case eCartUpdate.remove:
-                    if (!cartList.Contains(newItem))
-                        return;
+    //                break;
+    //            case eCartUpdate.remove:
+    //                if (!cartList.Contains(newItem))
+    //                    return;
 
-                    cartList.RemoveFromList(newItem);
-                    UpdateCartList(NewInventoryList());
+    //                cartList.RemoveFromList(newItem);
+    //                UpdateCartList(NewInventoryList());
 
-                    break;
-                case eCartUpdate.checkout:
+    //                break;
+    //            case eCartUpdate.checkout:
 
-                    break;
-                default:
-                    break;
-            }
+    //                break;
+    //            default:
+    //                break;
+    //        }
         
-    }
+    //}
 
     string NewInventoryList()
     {
