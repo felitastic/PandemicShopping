@@ -30,7 +30,7 @@ public class Shelf : MonoBehaviour
     {
         List<Item> itemsToPush = GetRandomItemList();
 
-        foreach(Item item in itemsToPush)
+        foreach (Item item in itemsToPush)
         {
             item.Move(PushVector(_baseForce));
         }
@@ -38,31 +38,32 @@ public class Shelf : MonoBehaviour
 
     Vector3 PushVector(float _force)
     {
-        Vector3 _pushVector = Vector3.zero;
-        float _pushForce = _force * Random.Range(maxPushMulti, minPushMulti);
+        Vector3 pushVector = Vector3.zero;
+        float pushForce = _force / 1.75f * Random.Range(maxPushMulti, minPushMulti);
+        float jumpForce = _force / 1.25f;
 
-        if (_pushForce < minPushForce)
-            _pushForce = Random.Range(minPushForce, minPushForce + 0.5f);
+        if (pushForce < minPushForce)
+            pushForce = Random.Range(minPushForce, minPushForce + 0.5f);
 
         switch (FaceDir)
         {
             case eShelfFaceDirection.down:
-                _pushVector = new Vector3(0, _pushForce, -_pushForce);
+                pushVector = new Vector3(0, jumpForce, -pushForce);
                 break;
             case eShelfFaceDirection.right:
-                _pushVector = new Vector3(0, _pushForce, -_pushForce);
+                pushVector = new Vector3(+pushForce, jumpForce, 0);
                 break;
             case eShelfFaceDirection.up:
-                _pushVector = new Vector3(0, _pushForce, -_pushForce);
+                pushVector = new Vector3(0, jumpForce, +pushForce);
                 break;
             case eShelfFaceDirection.left:
-                _pushVector = new Vector3(0, _pushForce, -_pushForce);
+                pushVector = new Vector3(-pushForce, jumpForce, 0);
                 break;
             default:
                 Debug.Log("I dunno which direction to push the item!");
                 break;
         }
-        return _pushVector;
+        return pushVector;
     }
 
     List<Item> GetRandomItemList()

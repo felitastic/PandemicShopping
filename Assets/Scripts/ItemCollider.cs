@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class ItemCollider : MonoBehaviour
     [SerializeField]
     Movement shoppingCart;
 
+    public static event Action ItemLocationChange;
     void Start()
     {
         thisItem = GetComponent<Item>();
@@ -21,12 +23,14 @@ public class ItemCollider : MonoBehaviour
         if (other.GetComponentInParent<Movement>())
         {
             ItemManager.Instance.ChangeValue(thisItem, eItemLocation.cart);
+            ItemLocationChange();
             print(thisItem.name + "is now in the cart");
         }
 
         if (other.gameObject.layer.Equals(8))
         {
             ItemManager.Instance.ChangeValue(thisItem, eItemLocation.ground);
+            ItemLocationChange();
             print(thisItem.name + "is now on the ground");
         }
     }

@@ -17,18 +17,8 @@ public class ItemSpawn : MonoBehaviour
 
     private void Start()
     {
-        //if (SetShelfIDs())
-            FillShelf();
+        FillShelf();
     }
-
-    //bool SetShelfIDs()
-    //{
-    //    for (int i = 0; i < allShelves.Length-1; i++)
-    //    {
-    //        allShelves[i].ShelfID = i;
-    //    }
-    //    return true;
-    //}
 
     void FillShelf()
     {
@@ -48,15 +38,11 @@ public class ItemSpawn : MonoBehaviour
                 chosenItem++;
             }
 
-
             //offset for the chosen item
             float _itemOffset = _item.SpawnOffset;
 
             //get the shelfID
             int _shelfID = shelf.ShelfID;
-
-            //get first spawnpoint values in the shelf
-            //float[] _origSpawnPoint = OriginalSpawnPos(shelf);
 
             //for as many times as this item fits into a shelf
             for (int _itemCount = 0; _itemCount < _item.maxNoInShelf - 1; _itemCount++)
@@ -72,26 +58,26 @@ public class ItemSpawn : MonoBehaviour
 
     Vector3 SpawnPosition(Shelf shelf, float offset, int itemCount)
     {
-        //float[] spawnPoint = origSpawnPos;
         Vector3 newPos = Vector3.zero;
+        newPos.x += offset * itemCount;
 
-        switch (shelf.FaceDir)
-        {
-            case eShelfFaceDirection.down:
-                newPos.x += offset * itemCount;
-                break;
-            case eShelfFaceDirection.right:
-                newPos.z += offset * itemCount;
-                break;
-            case eShelfFaceDirection.up:
-                newPos.x -= offset * itemCount;
-                break;
-            case eShelfFaceDirection.left:
-                newPos.z -= offset * itemCount;
-                break;
-            default:
-                break;
-        }
+        //switch (shelf.FaceDir)
+        //{
+        //    case eShelfFaceDirection.down:
+        //        newPos.x += offset * itemCount;
+        //        break;
+        //    case eShelfFaceDirection.right:
+        //        newPos.z += offset * itemCount;
+        //        break;
+        //    case eShelfFaceDirection.up:
+        //        newPos.x -= offset * itemCount;
+        //        break;
+        //    case eShelfFaceDirection.left:
+        //        newPos.z -= offset * itemCount;
+        //        break;
+        //    default:
+        //        break;
+        //}
 
         return newPos;
     }

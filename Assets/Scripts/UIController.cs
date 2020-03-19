@@ -2,48 +2,60 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIController : MonoBehaviour
 {
     [SerializeField]
-    Cart shoppingCart;
-    [SerializeField]
-    UI_Buttons buttonControl;
-    [SerializeField]
-    Text CartInventory;
+    TextMeshProUGUI CartInventory;
     [SerializeField]
     GameObject[] MenuToOpen;
-
+    [SerializeField]
+    Animator shoppingListAnim;
+    [SerializeField]
+    bool shoppingListVisible = false;
 
     private void Start()
     {
-        shoppingCart.UpdateCartList += UpdateCartInventory;
-        buttonControl.ButtonInput += ButtonClicked;
-
+        UI_Input.PlayerInput += GetPlayerInput;
+        ItemCollider.ItemLocationChange += UpdateCartInventory;
     }
 
-    void ButtonClicked(int whichButton)
+    void GetPlayerInput(eKeys pressedKey)
     {
-        switch(whichButton)
+        switch (pressedKey)
         {
-            case 0:
-                //MenuToOpen[whichButton].SetActive(true);
-
+            case eKeys.none:
                 break;
-            case 1:
-                Transform player = FindObjectOfType<Cart>().transform;
-                player.gameObject.SetActive(false);
-                player.transform.position = new Vector3(0f, 1.2f, -15f);
-                player.gameObject.SetActive(true);
-
+            case eKeys.pause:
+                PauseGame();
                 break;
-            default:
+            case eKeys.exit:
+                break;
+            case eKeys.shoppinglist:
+                ToggleShoppingList();
                 break;
         }
     }
 
-    void UpdateCartInventory(string newInventory)
+    void PauseGame()
     {
-        CartInventory.text = "Items in cart:\n"+newInventory;
+        if (GameManager.Instance.CurGameState != eGameState.running && GameManager.Instance.CurGameState != eGameState.paused)
+            return;
+
+        eGameState newGameState = GameManager.Instance.CurGameState == eGameState.running ? eGameState.paused : eGameState.running;
+        GameManager.Instance.ChangeGameState(newGameState);
+    }
+
+    void ToggleShoppingList()
+    {
+        string trigger = shoppingListVisible ? "disable" : "enable";
+        shoppingListVisible = !shoppingListVisible;
+         shoppingListAnim.SetTrigger(trigger);
+    }
+
+    void UpdateCartInventory()
+    {
+        //CartInventory.text = "Items in cart:\n"+newInventory;
     }
 }

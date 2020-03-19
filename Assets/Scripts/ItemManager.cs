@@ -10,7 +10,7 @@ public class ItemManager : Singleton<ItemManager>
 
     private void Start()
     {
-        ItemSpawn.OnItemCreation += AddToDictionary;        
+        ItemSpawn.OnItemCreation += AddToDictionary;                
     }
 
     private void Update()

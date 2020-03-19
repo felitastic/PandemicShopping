@@ -11,8 +11,11 @@ public class Item : MonoBehaviour
     Rigidbody rigid;
     [SerializeField]
     float spawnOffset;
+    Vector3 pausedVelocity;
+
     public float SpawnOffset { get { return spawnOffset; } }
     private int shelfID = int.MinValue;
+
     public int ShelfID
     {
         get { return shelfID; }
@@ -28,6 +31,11 @@ public class Item : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponentInChildren<Rigidbody>();
+    }
+
+    private void Start()
+    {
+        GameManager.OnGameStateChange += OnGamePaused;
     }
 
     private void OnEnable()
@@ -48,6 +56,29 @@ public class Item : MonoBehaviour
         rigid.velocity = _pushForce;
     }
 
+    private void OnGamePaused()
+    {
+        if (rigid.isKinematic)
+            return;
+
+        switch (GameManager.Instance.CurGameState)
+        {
+            case eGameState.running:
+                rigid.useGravity = true;
+                rigid.constraints = RigidbodyConstraints.None;
+                rigid.velocity = pausedVelocity;
+                break;
+            case eGameState.paused:
+                pausedVelocity = rigid.velocity;
+                rigid.velocity = Vector3.zero;
+                rigid.constraints = RigidbodyConstraints.FreezeAll;
+                rigid.useGravity = false;
+
+                break;
+            default:
+                return;
+        }
+    }
 
 
 
