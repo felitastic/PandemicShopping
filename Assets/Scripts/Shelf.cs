@@ -29,6 +29,8 @@ public class Shelf : MonoBehaviour
     void PushItems(float _baseForce)
     {
         List<Item> itemsToPush = GetRandomItemList();
+        if (itemsToPush.Count == 0)
+            return;
 
         foreach (Item item in itemsToPush)
         {
@@ -69,14 +71,18 @@ public class Shelf : MonoBehaviour
     List<Item> GetRandomItemList()
     {
         List<Item> pushList = new List<Item>();
-        List<Item> currentItemList = ItemManager.Instance.ItemsOnShelfList(ShelfID);
+        List<Item> currentItemList = ItemManager.Instance.AllItemsInShelf(ShelfID);
+
+        if (currentItemList.Count == 0)
+            return pushList;
+
         int noToPush = Random.Range(minItemsToPush, maxItemsToPush);
         if (noToPush >= currentItemList.Count)
             noToPush = currentItemList.Count;
 
         for (int i = 0; i < noToPush; i++)
         {
-            int item = Random.Range(0, currentItemList.Count - i);
+            int item = Random.Range(0, currentItemList.Count);
             pushList.Add(currentItemList[item]);
             currentItemList.RemoveAt(item);
         }

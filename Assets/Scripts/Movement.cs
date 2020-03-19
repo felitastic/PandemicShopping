@@ -65,6 +65,6 @@ public class Movement : MonoBehaviour
     public float GetSpeed()
     {
         return SpeedTest = Mathf.Abs(rigid.velocity.z);
-    }
+    }    
 }
 

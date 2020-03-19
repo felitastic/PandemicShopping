@@ -7,39 +7,34 @@ public class ItemCollider : MonoBehaviour
 {
     [SerializeField]
     Item thisItem;
-    [SerializeField]
-    Movement shoppingCart;
 
     public static event Action<Item, eItemLocation> ItemLocationChange;
-    void Start()
+    void Awake()
     {
-        thisItem = GetComponent<Item>();
-        shoppingCart = FindObjectOfType<Movement>();
+        thisItem = GetComponentInParent<Item>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-            //print(thisItem.name + "entered a trigger");
-        if (other.GetComponentInParent<Movement>())
+        if (other.GetComponentInParent<Movement>() && ItemManager.Instance.curLocation(thisItem) != eItemLocation.cart)
         {
             ItemLocationChange(thisItem, eItemLocation.cart);
-            print(thisItem.name + "is now in the cart");
-        }
-
-        if (other.gameObject.layer.Equals(8))
-        {
-            ItemLocationChange(thisItem, eItemLocation.ground);
-            print(thisItem.name + "is now on the ground");
+            //print(thisItem.name + "is now in the cart");
         }
     }
 
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    //print(thisItem.name + "exited a trigger");
-    //    if (other.GetComponentInParent<Movement>() || other.GetComponentInParent<ShelfTrigger>())
-    //    {
-    //        ItemManager.Instance.ChangeValue(thisItem, eItemLocation.ground);
-    //        print(thisItem.name + "is now on the ground");
-    //    }
-    //}
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.layer.Equals(10) && ItemManager.Instance.curLocation(thisItem) != eItemLocation.shelf)
+        {
+            ItemLocationChange(thisItem, eItemLocation.shelf);
+            //print(thisItem.name + "is now on the shelf");
+        }
+
+        if (other.gameObject.layer.Equals(8) && ItemManager.Instance.curLocation(thisItem) != eItemLocation.ground)
+        {
+            ItemLocationChange(thisItem, eItemLocation.ground);
+            //print(thisItem.name + "is now on the ground");
+        }
+    }
 }

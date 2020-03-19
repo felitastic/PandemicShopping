@@ -10,11 +10,12 @@ public class Item : MonoBehaviour
     private Rigidbody rigid;
     private Vector3 pausedVelocity;
     private int shelfID = int.MinValue;
+    bool moved;
 
-    public int maxNoInShelf { get { return info.MaxNoInShelf; } }
+    public int MaxNoInShelf { get { return info.MaxNoInShelf; } }
     public eItemType Type { get { return info.Type; } }
-    float spawnOffset { get { return info.SpawnOffset; } }
-    public float SpawnOffset { get { return spawnOffset; } }
+    public float SpawnOffset { get { return info.SpawnOffset; } }
+    public string Name { get { return info.ItemName; } }
 
     public int ShelfID
     {
@@ -31,6 +32,7 @@ public class Item : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponentInChildren<Rigidbody>();
+        //GetComponentInChildren<ItemCollider>().enabled = false;
     }
 
     private void Start()

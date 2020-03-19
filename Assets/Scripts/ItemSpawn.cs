@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Spawns the items on the shelfs
+/// </summary>
 public class ItemSpawn : MonoBehaviour
 {
     [SerializeField]
@@ -10,10 +13,11 @@ public class ItemSpawn : MonoBehaviour
     [SerializeField]
     Shelf[] allShelves;
     [SerializeField]
-    bool random;
+    bool random { get { return GameManager.Instance.RandomizedSpawn; } }
     int chosenItem;
 
     public static event Action<Item> OnItemCreation = delegate { };
+    public static event Action ItemSpawnFinished = delegate { };
 
     private void Start()
     {
@@ -45,7 +49,7 @@ public class ItemSpawn : MonoBehaviour
             int _shelfID = shelf.ShelfID;
 
             //for as many times as this item fits into a shelf
-            for (int _itemCount = 0; _itemCount < _item.maxNoInShelf; _itemCount++)
+            for (int _itemCount = 0; _itemCount < _item.MaxNoInShelf; _itemCount++)
             {
                 //Vector3 newPos = SpawnPosition(shelf, _itemOffset, _itemCount);
                 Item newItem = Instantiate(_item, shelf.transform);
@@ -54,6 +58,7 @@ public class ItemSpawn : MonoBehaviour
                 OnItemCreation(newItem);
             }
         }
+        ItemSpawnFinished();
     }
 
     Vector3 SpawnPosition(Shelf shelf, float offset, int itemCount)

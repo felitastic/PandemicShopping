@@ -2,61 +2,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+
+/// <summary>
+/// Keeps track of all Items in scene, handles updates of the location of items and helps retrieve values from the item list
+/// </summary>
 public class ItemManager : Singleton<ItemManager>
 {
     protected ItemManager() { }
 
     public Dictionary<Item, eItemLocation> AllItems { get; private set; }
-    public Dictionary<eItemType, int> AllItemTypes { get; private set; }
-    public Dictionary<eItemType, int> RequiredItems { get; private set; }
+    public Dictionary<eItemType, int> AllItemsByType { get; private set; }
 
     private void Awake()
     {
         AllItems = new Dictionary<Item, eItemLocation>();
-        AllItemTypes = new Dictionary<eItemType, int>();
-        RequiredItems = new Dictionary<eItemType, int>();
+        AllItemsByType = new Dictionary<eItemType, int>();
     }
     private void Start()
     {
-        ItemSpawn.OnItemCreation += AddToDictionary; 
+        ItemSpawn.OnItemCreation += AddToDictionary;
         ItemSpawn.OnItemCreation += SortAllItemsByType;
         ItemCollider.ItemLocationChange += ChangeLocation;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.I))
         {
-            foreach (KeyValuePair<eItemType, int> pair in AllItemTypes)
-            {
-                print(pair.Value + "x " + pair.Key);
-            }
-            if (AllItemTypes.Count == 0)
-                print("No entries in AllItemTypes dic");
+            string allitems = "All Items in Scene:\n";
 
-            //List<Item> items = ItemsOnShelfList(0);
-            //if (items.Count == 0)
-            //{
-            //    print("no items here");
-            //}
-            //else
-            //{
-            //    //foreach (Item i in items)
-            //    print(items.Count + " in the shelf");
-            //}
+            foreach (KeyValuePair<eItemType, int> pair in AllItemsByType)
+            {
+                allitems += pair.Value + "x " + pair.Key+"\n";
+            }
+            if (AllItemsByType.Count == 0)
+                allitems += "None found :(";
+
+            print(allitems);
         }
-        else if (Input.GetKeyDown(KeyCode.I))
+        else if (Input.GetKeyDown(KeyCode.C))
         {
-            List<Item> cart = AllItemsInCartList();
+            string allitems = "All Items in Cart:\n";
+
+            List<Item> cart = AllItemsInCart();
+
+            foreach(Item item in cart)
+            {
+                allitems += item.Name + "\n";
+            }
             if (cart.Count == 0)
-            {
-                print("no items in the cart");
-            }
-            else
-            {
-                //foreach (Item i in items)
-                print(cart.Count + " in the cart");
-            }
+                allitems = "Cart is empty :(";
+
+            print(allitems);
         }
     }
 
@@ -65,28 +62,51 @@ public class ItemManager : Singleton<ItemManager>
         AllItems.Add(newItem, eItemLocation.shelf);
     }
 
+    public eItemLocation curLocation(Item item)
+    {
+        return AllItems.ContainsKey(item) ? AllItems[item] : eItemLocation.shelf;            
+    }
+
     public void ChangeLocation(Item item, eItemLocation newLocation)
     {
-        AllItems[item] = newLocation;  
+        AllItems[item] = newLocation;
     }
 
     public void SortAllItemsByType(Item item)
     {
-        if (AllItemTypes.ContainsKey(item.Type))
+        if (AllItemsByType.ContainsKey(item.Type))
         {
-            AllItemTypes[item.Type] += 1;
+            AllItemsByType[item.Type] += 1;
             return;
         }
 
-        AllItemTypes.Add(item.Type, +1);
+        AllItemsByType.Add(item.Type, 1);
     }
 
-    public void GetRandomShoppingList()
+    public eItemType GetRandomFromAllItems()
     {
-
+        int rand = Random.Range(0, AllItemsByType.Count);
+        return AllItemsByType.ElementAt(rand).Key;
     }
 
-    public List<Item> AllItemsInCartList()
+    public Dictionary<eItemType, int> SortByItemType(List<Item> itemsToSort)
+    {
+        Dictionary<eItemType, int> sortedItems = new Dictionary<eItemType, int>();
+        foreach (Item item in itemsToSort)
+        {
+            if (sortedItems.ContainsKey(item.Type))
+            {
+                sortedItems[item.Type] += 1;
+            }
+            else
+            {
+                sortedItems.Add(item.Type, 1);
+            }
+        }
+        return sortedItems;
+    }
+
+    public List<Item> AllItemsInCart()
     {
         List<Item> cartItems = (from i in AllItems
                                 where i.Value == eItemLocation.cart
@@ -94,11 +114,11 @@ public class ItemManager : Singleton<ItemManager>
         return cartItems;
     }
 
-    public List<Item> ItemsOnShelfList(int shelfID)
+    public List<Item> AllItemsInShelf(int shelfID)
     {
         List<Item> shelfItems = (from i in AllItems
                                  where i.Value == eItemLocation.shelf && i.Key.ShelfID == shelfID
-                                 select i.Key).ToList();        
+                                 select i.Key).ToList();
         return shelfItems;
     }
 }

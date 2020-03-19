@@ -4,8 +4,8 @@ public enum eGameState { loading, running, paused}
 
 public enum eItemType 
 {
-    toiletpaper,
-    soup
+    Toiletpaper,
+    Soup
 }
 
 public enum eKeys

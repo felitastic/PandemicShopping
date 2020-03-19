@@ -14,11 +14,12 @@ public class ShelfTrigger : MonoBehaviour
     {
         cart = FindObjectOfType<Movement>();
     }
-
+    
     public event Action<float> HitByCart = delegate { };
+    public static event Action HitAnyShelf = delegate { };
+
     private void OnTriggerEnter(Collider other)
     {
-
         //Debug.Log(this.gameObject.name + " was hit by " + other.gameObject.name);
         float speed = cart.GetSpeed();
 
@@ -27,6 +28,7 @@ public class ShelfTrigger : MonoBehaviour
             justHit = true;
             //Debug.Log(this.gameObject.name + " was hit by the cart at speed " + speed);
             HitByCart(speed);
+            HitAnyShelf();
         }
         justHit = false;
     }

@@ -7,7 +7,7 @@ using TMPro;
 public class UIController : MonoBehaviour
 {
     [SerializeField]
-    ShoppingList shoppingList;
+    ShoppingCart shoppingCart;
     [SerializeField]
     TextMeshProUGUI ShoppingListText;
     [SerializeField]
@@ -15,12 +15,15 @@ public class UIController : MonoBehaviour
     [SerializeField]
     Animator shoppingListAnim;
     [SerializeField]
-    bool shoppingListVisible = false;
+    bool shoppingListVisible = true;
+    [SerializeField]
+    GameObject[] shopListStrikethrough;
 
     private void Start()
     {
-        shoppingList = GetComponent<ShoppingList>();
-        shoppingList.ShoppingListUpdated += UpdateShoppingList;
+        shoppingCart = GetComponent<ShoppingCart>();
+        shoppingCart.CreateShoppingList += UpdateShoppingList;
+        shoppingCart.StrikeItems += StrikeItems;
         UI_Input.PlayerInput += GetPlayerInput;
     }
 
@@ -57,8 +60,21 @@ public class UIController : MonoBehaviour
          shoppingListAnim.SetTrigger(trigger);
     }
 
-    void UpdateShoppingList(string newList)
+    void UpdateShoppingList(string[] _newList)
     {
-        ShoppingListText.text = newList;
+        string list = "";
+        foreach (string s in _newList)
+            list += s + "\n";
+
+        ShoppingListText.text = list;
+    }
+
+    void StrikeItems(Dictionary<int, bool> _itemsToStrike)
+    {
+        foreach(var pair in _itemsToStrike)
+        {
+            shopListStrikethrough[pair.Key].SetActive(pair.Value);
+            //print(pair.Key + ". Item on list set to " + shopListStrikethrough[pair.Key].activeSelf);           
+        }
     }
 }
