@@ -6,31 +6,48 @@ public class ItemManager : Singleton<ItemManager>
 {
     protected ItemManager() { }
 
-    public Dictionary<Item, eItemLocation> allItems = new Dictionary<Item, eItemLocation>();
+    public Dictionary<Item, eItemLocation> AllItems { get; private set; }
+    public Dictionary<eItemType, int> AllItemTypes { get; private set; }
+    public Dictionary<eItemType, int> RequiredItems { get; private set; }
 
+    private void Awake()
+    {
+        AllItems = new Dictionary<Item, eItemLocation>();
+        AllItemTypes = new Dictionary<eItemType, int>();
+        RequiredItems = new Dictionary<eItemType, int>();
+    }
     private void Start()
     {
-        ItemSpawn.OnItemCreation += AddToDictionary;                
+        ItemSpawn.OnItemCreation += AddToDictionary; 
+        ItemSpawn.OnItemCreation += SortAllItemsByType;
+        ItemCollider.ItemLocationChange += ChangeLocation;
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            List<Item> items = ItemsOnShelfList(0);
-            if (items.Count == 0)
+            foreach (KeyValuePair<eItemType, int> pair in AllItemTypes)
             {
-                print("no items here");
+                print(pair.Value + "x " + pair.Key);
             }
-            else
-            {
-                //foreach (Item i in items)
-                print(items.Count + " in the shelf");
-            }
+            if (AllItemTypes.Count == 0)
+                print("No entries in AllItemTypes dic");
+
+            //List<Item> items = ItemsOnShelfList(0);
+            //if (items.Count == 0)
+            //{
+            //    print("no items here");
+            //}
+            //else
+            //{
+            //    //foreach (Item i in items)
+            //    print(items.Count + " in the shelf");
+            //}
         }
         else if (Input.GetKeyDown(KeyCode.I))
         {
-            List<Item> cart = ItemsInCartList();
+            List<Item> cart = AllItemsInCartList();
             if (cart.Count == 0)
             {
                 print("no items in the cart");
@@ -45,17 +62,33 @@ public class ItemManager : Singleton<ItemManager>
 
     private void AddToDictionary(Item newItem)
     {
-        allItems.Add(newItem, eItemLocation.shelf);
+        AllItems.Add(newItem, eItemLocation.shelf);
     }
 
-    public void ChangeValue(Item item, eItemLocation newLocation)
+    public void ChangeLocation(Item item, eItemLocation newLocation)
     {
-        allItems[item] = newLocation;
+        AllItems[item] = newLocation;  
     }
 
-    public List<Item> ItemsInCartList()
+    public void SortAllItemsByType(Item item)
     {
-        List<Item> cartItems = (from i in allItems
+        if (AllItemTypes.ContainsKey(item.Type))
+        {
+            AllItemTypes[item.Type] += 1;
+            return;
+        }
+
+        AllItemTypes.Add(item.Type, +1);
+    }
+
+    public void GetRandomShoppingList()
+    {
+
+    }
+
+    public List<Item> AllItemsInCartList()
+    {
+        List<Item> cartItems = (from i in AllItems
                                 where i.Value == eItemLocation.cart
                                 select i.Key).ToList();
         return cartItems;
@@ -63,7 +96,7 @@ public class ItemManager : Singleton<ItemManager>
 
     public List<Item> ItemsOnShelfList(int shelfID)
     {
-        List<Item> shelfItems = (from i in allItems
+        List<Item> shelfItems = (from i in AllItems
                                  where i.Value == eItemLocation.shelf && i.Key.ShelfID == shelfID
                                  select i.Key).ToList();        
         return shelfItems;

@@ -5,16 +5,16 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    public int maxNoInShelf;
-
     [SerializeField]
-    Rigidbody rigid;
-    [SerializeField]
-    float spawnOffset;
-    Vector3 pausedVelocity;
-
-    public float SpawnOffset { get { return spawnOffset; } }
+    private ItemInfo info;
+    private Rigidbody rigid;
+    private Vector3 pausedVelocity;
     private int shelfID = int.MinValue;
+
+    public int maxNoInShelf { get { return info.MaxNoInShelf; } }
+    public eItemType Type { get { return info.Type; } }
+    float spawnOffset { get { return info.SpawnOffset; } }
+    public float SpawnOffset { get { return spawnOffset; } }
 
     public int ShelfID
     {

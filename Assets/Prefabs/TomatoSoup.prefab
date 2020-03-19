@@ -62,9 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b95fd1ed8851cd4cae4527bfbe49901, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxNoInShelf: 12
-  rigid: {fileID: 8110283111715660991}
-  spawnOffset: -0.4
+  info: {fileID: 11400000, guid: badd97b7163ef994d843e6182ae6e836, type: 2}
 --- !u!114 &6805565867329743596
 MonoBehaviour:
   m_ObjectHideFlags: 0

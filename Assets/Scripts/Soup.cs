@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Can : Item
-{
-  
+public class Soup : Item
+{  
 }

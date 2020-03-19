@@ -10,7 +10,7 @@ public class ItemCollider : MonoBehaviour
     [SerializeField]
     Movement shoppingCart;
 
-    public static event Action ItemLocationChange;
+    public static event Action<Item, eItemLocation> ItemLocationChange;
     void Start()
     {
         thisItem = GetComponent<Item>();
@@ -22,15 +22,13 @@ public class ItemCollider : MonoBehaviour
             //print(thisItem.name + "entered a trigger");
         if (other.GetComponentInParent<Movement>())
         {
-            ItemManager.Instance.ChangeValue(thisItem, eItemLocation.cart);
-            ItemLocationChange();
+            ItemLocationChange(thisItem, eItemLocation.cart);
             print(thisItem.name + "is now in the cart");
         }
 
         if (other.gameObject.layer.Equals(8))
         {
-            ItemManager.Instance.ChangeValue(thisItem, eItemLocation.ground);
-            ItemLocationChange();
+            ItemLocationChange(thisItem, eItemLocation.ground);
             print(thisItem.name + "is now on the ground");
         }
     }

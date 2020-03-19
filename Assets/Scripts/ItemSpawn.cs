@@ -45,7 +45,7 @@ public class ItemSpawn : MonoBehaviour
             int _shelfID = shelf.ShelfID;
 
             //for as many times as this item fits into a shelf
-            for (int _itemCount = 0; _itemCount < _item.maxNoInShelf - 1; _itemCount++)
+            for (int _itemCount = 0; _itemCount < _item.maxNoInShelf; _itemCount++)
             {
                 //Vector3 newPos = SpawnPosition(shelf, _itemOffset, _itemCount);
                 Item newItem = Instantiate(_item, shelf.transform);

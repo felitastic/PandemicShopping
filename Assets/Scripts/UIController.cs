@@ -7,7 +7,9 @@ using TMPro;
 public class UIController : MonoBehaviour
 {
     [SerializeField]
-    TextMeshProUGUI CartInventory;
+    ShoppingList shoppingList;
+    [SerializeField]
+    TextMeshProUGUI ShoppingListText;
     [SerializeField]
     GameObject[] MenuToOpen;
     [SerializeField]
@@ -17,8 +19,9 @@ public class UIController : MonoBehaviour
 
     private void Start()
     {
+        shoppingList = GetComponent<ShoppingList>();
+        shoppingList.ShoppingListUpdated += UpdateShoppingList;
         UI_Input.PlayerInput += GetPlayerInput;
-        ItemCollider.ItemLocationChange += UpdateCartInventory;
     }
 
     void GetPlayerInput(eKeys pressedKey)
@@ -54,8 +57,8 @@ public class UIController : MonoBehaviour
          shoppingListAnim.SetTrigger(trigger);
     }
 
-    void UpdateCartInventory()
+    void UpdateShoppingList(string newList)
     {
-        //CartInventory.text = "Items in cart:\n"+newInventory;
+        ShoppingListText.text = newList;
     }
 }

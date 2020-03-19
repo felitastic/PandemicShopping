@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 920029501684136781}
   - component: {fileID: 6805565867329743596}
   m_Layer: 0
-  m_Name: CanOfSoup
+  m_Name: ChickenSoup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,9 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b95fd1ed8851cd4cae4527bfbe49901, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxNoInShelf: 12
-  rigid: {fileID: 8110283111715660991}
-  spawnOffset: -0.4
+  info: {fileID: 11400000, guid: 22ad7395cad1c614086f56d30a121f0a, type: 2}
 --- !u!114 &6805565867329743596
 MonoBehaviour:
   m_ObjectHideFlags: 0
