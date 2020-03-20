@@ -22,6 +22,12 @@ public class ItemSpawn : MonoBehaviour
     private void Start()
     {
         FillShelf();
+        print("random: " + random);
+    }
+
+    public int PrefabCount()
+    {
+        return itemPrefab.Length;
     }
 
     void FillShelf()

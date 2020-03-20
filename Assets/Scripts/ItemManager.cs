@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 /// <summary>
 /// Keeps track of all Items in scene, handles updates of the location of items and helps retrieve values from the item list
@@ -13,6 +14,8 @@ public class ItemManager : Singleton<ItemManager>
     public Dictionary<Item, eItemLocation> AllItems { get; private set; }
     public Dictionary<eItemType, int> AllItemsByType { get; private set; }
 
+    public static event Action ItemAddedToCart = delegate { };
+
     private void Awake()
     {
         AllItems = new Dictionary<Item, eItemLocation>();
@@ -22,7 +25,7 @@ public class ItemManager : Singleton<ItemManager>
     {
         ItemSpawn.OnItemCreation += AddToDictionary;
         ItemSpawn.OnItemCreation += SortAllItemsByType;
-        ItemCollider.ItemLocationChange += ChangeLocation;
+        ItemCollider.ItemLocationChange += ChangeLocation;        
     }
 
     private void Update()
@@ -70,6 +73,11 @@ public class ItemManager : Singleton<ItemManager>
     public void ChangeLocation(Item item, eItemLocation newLocation)
     {
         AllItems[item] = newLocation;
+        if (newLocation == eItemLocation.cart)
+        {
+            ItemAddedToCart();
+            print(item.Name + "is in cart");
+        }
     }
 
     public void SortAllItemsByType(Item item)
@@ -85,7 +93,7 @@ public class ItemManager : Singleton<ItemManager>
 
     public eItemType GetRandomFromAllItems()
     {
-        int rand = Random.Range(0, AllItemsByType.Count);
+        int rand = UnityEngine.Random.Range(0, AllItemsByType.Count);
         return AllItemsByType.ElementAt(rand).Key;
     }
 

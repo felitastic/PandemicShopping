@@ -9,10 +9,11 @@ using System.Linq;
 /// </summary>
 public class ShoppingCart : MonoBehaviour
 {
-    int minItemsToShop = 2;
-    int maxItemsToShop = 6;
+    int minItemsToShop = 1;
+    int maxItemsPossibleOnList = 6;
     int maxCartCapacity = 8;
-    bool noFixedItemAmount { get { return GameManager.Instance.NoCountInShoppingList; } }
+    int totalItemPrefabs {  get { return GameManager.Instance.AvailablePrefabCount; } }
+    bool FixedItemAmount { get { return GameManager.Instance.FixedAmountInShopList; } }
     public int curEntries { get; private set; }
 
     Dictionary<eItemType, int> requiredItems;
@@ -25,10 +26,12 @@ public class ShoppingCart : MonoBehaviour
     {
         requiredItems = new Dictionary<eItemType, int>();
         itemsInCart = new Dictionary<eItemType, int>();
+        minItemsToShop = UnityEngine.Random.Range(1, 5);
     }
 
     private void Start()
     {
+        print("Count in list: " + FixedItemAmount);
         ItemCollider.ItemLocationChange += UpdateItemsInCart;
         ItemSpawn.ItemSpawnFinished += SetShoppingList;
     }
@@ -37,7 +40,7 @@ public class ShoppingCart : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
-            string allitems = "All Items in shopping list:\n";
+            string allitems = "All Items on List:\n";
 
             foreach (KeyValuePair<eItemType, int> pair in requiredItems)
             {
@@ -52,18 +55,21 @@ public class ShoppingCart : MonoBehaviour
 
     void SetShoppingList()
     {
-        int maxItems = noFixedItemAmount ? maxItemsToShop + 1 : ItemManager.Instance.AllItemsByType.Count;        
-        int itemsToShop = UnityEngine.Random.Range(minItemsToShop, maxItems);
+        int maxItemsOnList = !FixedItemAmount ? maxItemsPossibleOnList : maxCartCapacity + 1;        
+        //no of items in TOTAL to shop (including doubles if !noFixedAmount)
+        int itemsToShop = UnityEngine.Random.Range(minItemsToShop, maxItemsOnList);
+        itemsToShop = itemsToShop > totalItemPrefabs ? totalItemPrefabs - 1 : itemsToShop;
 
         while (itemsToShop > 0)
         {
             eItemType newKey = ItemManager.Instance.GetRandomFromAllItems();
-            int amount = noFixedItemAmount ? 1 : UnityEngine.Random.Range(1, 4);
+            int amount = !FixedItemAmount ? 1 : UnityEngine.Random.Range(1, 4);
 
-            if (requiredItems.Count < maxItemsToShop)
+            //is there still room in the shopping list
+            if (requiredItems.Count < maxItemsPossibleOnList)
             {
                 if (requiredItems.ContainsKey(newKey))
-                    requiredItems[newKey] += noFixedItemAmount ? 0 : amount;
+                    requiredItems[newKey] += !FixedItemAmount ? 0 : amount;
                 else
                     requiredItems.Add(newKey, amount);
                 
@@ -71,9 +77,9 @@ public class ShoppingCart : MonoBehaviour
             }
             else
             {
-                if (requiredItems.ContainsKey(newKey) && !noFixedItemAmount)
+                if (requiredItems.ContainsKey(newKey) && FixedItemAmount)
                 {
-                    requiredItems[newKey] += 0;
+                    requiredItems[newKey] += amount;
                     itemsToShop -= amount;
                 }
             }
@@ -85,13 +91,10 @@ public class ShoppingCart : MonoBehaviour
     void UpdateItemsInCart(Item i, eItemLocation l)
     {
         Dictionary<eItemType,int> _tempItemsInCart = ItemManager.Instance.SortByItemType(ItemManager.Instance.AllItemsInCart());
-        if (itemsInCart.Equals(_tempItemsInCart))
-            return;
-        else
-        {
-            itemsInCart = _tempItemsInCart;
-            CompareCartToShoppingList();
-        }
+        print(_tempItemsInCart.Count + " Items in temp Cart");
+        itemsInCart = _tempItemsInCart;
+        print(itemsInCart.Count + " Items in Cart");
+        CompareCartToShoppingList();        
     }
 
     public string[] WriteShoppingList()
@@ -102,7 +105,7 @@ public class ShoppingCart : MonoBehaviour
         {
             eItemType item = requiredItems.ElementAt(i).Key;
             int count = requiredItems.ElementAt(i).Value;
-            _lines[i] = noFixedItemAmount ? item.ToString() : count.ToString() + "x " + item.ToString();
+            _lines[i] = !FixedItemAmount ? item.ToString() : count.ToString() + "x " + item.ToString();
         }
         return _lines;
     }
@@ -117,7 +120,10 @@ public class ShoppingCart : MonoBehaviour
             bool gotItem = false;
 
             if (itemsInCart.ContainsKey(searchKey))
-                gotItem = itemsInCart[searchKey] >= requiredItems[searchKey] ? true : false; 
+                if (FixedItemAmount)
+                    gotItem = true;
+                else
+                    gotItem = itemsInCart[searchKey] >= requiredItems[searchKey] ? true : false;
                     
             rowsToTickOff.Add(i, gotItem);
             //print("no " + i + " is " + gotItem);

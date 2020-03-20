@@ -10,12 +10,15 @@ public class GameManager : Singleton<GameManager>
     //true: items from prefab list spawn randomized on the shelfs
     public bool RandomizedSpawn;
     //true: Shopping list only asks for items without specific number
-    public bool NoCountInShoppingList { get; private set; }
+    public bool FixedAmountInShopList { get; private set; }
+    public int AvailablePrefabCount { get; private set; }
 
     public static event Action OnGameStateChange = delegate { };
     private void Awake()
     {
-        NoCountInShoppingList = true;        
+        RandomizedSpawn = false;
+        FixedAmountInShopList = false;        
+        AvailablePrefabCount = FindObjectOfType<ItemSpawn>().PrefabCount();
     }
 
     private void Start()
