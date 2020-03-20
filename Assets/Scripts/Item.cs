@@ -63,34 +63,25 @@ public class Item : MonoBehaviour
 
     IEnumerator WhileItemIsMoving()
     {
-        while (IsMoving)    
+        if (GameManager.Instance.CurGameState == eGameState.running)
         {
-            if (rigid.velocity.Equals(Vector3.zero))
+            while (IsMoving)
             {
-                ChangeIsMoving(false);
-                ItemStoppedMoving(this);
-                yield break;
-            }            
-            yield return null;
+                if (rigid.velocity.Equals(Vector3.zero))
+                {
+                    ChangeIsMoving(false);
+                    ItemStoppedMoving(this);
+                    yield break;
+                }
+                yield return null;
+            }
         }
-        //yield return null;
     }
 
     public void ChangeIsMoving(bool value)
     {
         IsMoving = value;
     }
-
-    //IEnumerator CheckIfDoneMoving()
-    //{
-    //    while (moving)
-    //    {
-    //        if (rigid.velocity == Vector3.zero)
-    //        {
-    //            moving = false;
-    //        }
-    //    }
-    //}
 
     private void OnGamePaused()
     {

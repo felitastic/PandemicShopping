@@ -18,7 +18,7 @@ public class GameManager : Singleton<GameManager>
     public static event Action OnGameStateChange = delegate { };
     private void Awake()
     {
-        RandomizedSpawn = false;
+        RandomizedSpawn = true;
         FixedAmountInShopList = false;
         FullShelves = true;
         AvailablePrefabCount = FindObjectOfType<ItemSpawn>().PrefabCount();

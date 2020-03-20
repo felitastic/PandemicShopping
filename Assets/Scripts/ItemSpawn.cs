@@ -65,6 +65,7 @@ public class ItemSpawn : MonoBehaviour
                 Item newItem = Instantiate(itemToSpawn, shelf.transform);
                 newItem.transform.localPosition = SpawnPosition(shelf, itemSpawnOffset, _itemCount);
                 newItem.ShelfID = shelf.ShelfID;
+                newItem.gameObject.name = newItem.Name + "_" + shelfID+"_No"+ _itemCount;
                 OnItemCreation(newItem);
             }
         }

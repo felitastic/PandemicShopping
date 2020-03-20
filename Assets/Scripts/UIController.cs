@@ -22,8 +22,8 @@ public class UIController : MonoBehaviour
     private void Start()
     {
         shoppingCart = GetComponent<ShoppingCart>();
-        shoppingCart.CreateShoppingList += UpdateShoppingList;
-        shoppingCart.StrikeItems += StrikeItems;
+        shoppingCart.CreateShoppingList += WriteShoppingListUI;
+        shoppingCart.UpdateShoppingList += StrikeItems;
         UI_Input.PlayerInput += GetPlayerInput;
         shoppingListVisible = false;
     }
@@ -62,11 +62,11 @@ public class UIController : MonoBehaviour
     void ToggleShoppingList()
     {
         string trigger = shoppingListVisible ? "disable" : "enable";
+        shoppingListAnim.SetTrigger(trigger);
         shoppingListVisible = !shoppingListVisible;
-         shoppingListAnim.SetTrigger(trigger);
     }
 
-    void UpdateShoppingList(string[] _newList)
+    void WriteShoppingListUI(string[] _newList)
     {
         string list = "";
         foreach (string s in _newList)
@@ -75,25 +75,19 @@ public class UIController : MonoBehaviour
         ShoppingListText.text = list;
     }
 
-    void StrikeItems(Dictionary<int, bool> _itemsToStrike)
+    void StrikeItems(int whichRow, bool striked)
+    {
+        StartCoroutine(UpdateShoppingListUI(whichRow, striked));
+    }
+
+    IEnumerator UpdateShoppingListUI(int whichRow, bool striked)
     {
         if (!shoppingListVisible)
             ToggleShoppingList();
-
-        StartCoroutine(ShowStriking(_itemsToStrike));        
-    }
-
-    IEnumerator ShowStriking(Dictionary<int, bool> _itemsToStrike)
-    {
+               
+        yield return new WaitForSeconds(0.7f);
+        shopListStrikethrough[whichRow].SetActive(striked);
         yield return new WaitForSeconds(0.5f);
-        foreach (var pair in _itemsToStrike)
-        {
-            shopListStrikethrough[pair.Key].SetActive(pair.Value);
-            yield return new WaitForSeconds(0.75f);
-            //print(pair.Key + ". Item on list set to " + shopListStrikethrough[pair.Key].activeSelf);           
-        }
-
-        yield return new WaitForSeconds(1.5f);
 
         if(shoppingListVisible)
             ToggleShoppingList();

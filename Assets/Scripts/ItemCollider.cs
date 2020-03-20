@@ -19,12 +19,12 @@ public class ItemCollider : MonoBehaviour
         if (other.gameObject.layer.Equals(9) && ItemManager.Instance.curLocation(thisItem) != eItemLocation.cart)
         {
             ItemLocationChange(thisItem, eItemLocation.cart);
-            print(thisItem.name + " entered cart trigger");
+            //print(thisItem.name + " entered cart trigger");
         }
         else if (other.gameObject.layer.Equals(12) && ItemManager.Instance.curLocation(thisItem) != eItemLocation.ground)
         {
             ItemLocationChange(thisItem, eItemLocation.ground);
-            print(thisItem.name + " entered ground trigger");
+            //print(thisItem.name + " entered ground trigger");
         }
     }
 

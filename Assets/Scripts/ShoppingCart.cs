@@ -20,23 +20,25 @@ public class ShoppingCart : MonoBehaviour
 
     Dictionary<eItemType, int> requiredItems;
     Dictionary<eItemType, int> itemsInCart;
-    Dictionary<int, bool> tickedOffRows;
+    Dictionary<eItemType, int> shopListGUI;
 
     public event Action<string[]> CreateShoppingList = delegate { };
-    public event Action<Dictionary<int, bool>> StrikeItems = delegate { };
+    public event Action<int, bool> UpdateShoppingList = delegate { };
 
     private void Awake()
     {
+        gotEverything = false;
+        noChange = false;
         requiredItems = new Dictionary<eItemType, int>();
         itemsInCart = new Dictionary<eItemType, int>();
-        tickedOffRows = new Dictionary<int, bool>();
+        shopListGUI = new Dictionary<eItemType, int>();
         minItemsToShop = UnityEngine.Random.Range(1, 5);
     }
 
     private void Start()
     {
         print("Count in list: " + FixedItemAmount);
-        ItemManager.ItemAddedToCart += UpdateItemsInCart;
+        ItemManager.CartContentChanged += ItemContentInCartChanged;
         ItemSpawn.ItemSpawnFinished += SetShoppingList;
     }
 
@@ -101,58 +103,123 @@ public class ShoppingCart : MonoBehaviour
             eItemType item = requiredItems.ElementAt(i).Key;
             int count = requiredItems.ElementAt(i).Value;
             _lines[i] = !FixedItemAmount ? item.ToString() : count.ToString() + "x " + item.ToString();
-            tickedOffRows.Add(i, false);
+            shopListGUI.Add(item, i);
         }
         return _lines;
     }
 
-    void UpdateItemsInCart(bool wasItemadded)
+    void ItemContentInCartChanged(Item item, bool wasAdded)
     {
-        itemsInCart = ItemManager.Instance.SortByItemType(ItemManager.Instance.AllItemsInCart());
-
-        if (wasItemadded && gotEverything)
+        if (wasAdded && gotEverything)
             return;
 
-        if (!wasItemadded && gotEverything)
-            gotEverything = false;
-
-        if ((wasItemadded && !gotEverything) || !wasItemadded)
-            StartCoroutine(CompareCartToShoppingList());
-    }
-
-    IEnumerator CompareCartToShoppingList()
-    {
-        if (gotEverything)
-            yield break;
-
-        //Wait to make sure all items are really in cart
-        yield return new WaitForSeconds(0.25f);
-
-        //Set to false if any key is not in the cart
-        gotEverything = true;
-        //Set to false if any value is changed
-        noChange = true;
-
-        for (int i = 0; i < curEntries; i++)
+        //Check if it is on the required list 
+        if (IsItemOnShoppingList(item.Type))
         {
-            var searchKey = requiredItems.ElementAt(i).Key;
-            bool gotItem = false;
+            if (wasAdded)
+            {
+                print("yay, we gained an item");
+                AddToCart(item.Type);
 
-            if (itemsInCart.ContainsKey(searchKey))
-                if (!FixedItemAmount)
-                    gotItem = true;
-                else
-                    gotItem = itemsInCart[searchKey] >= requiredItems[searchKey] ? true : false;
+                if (!CanItemBeStrikedFromList(item.Type))
+                    return;
 
-            if (tickedOffRows[i] == gotItem)
-                noChange = false;
-            else
-                tickedOffRows[i] = gotItem;
+                UpdateShoppingList(shopListGUI[item.Type], true);
+                gotEverything = GotAllItems();
 
-            if (!gotItem)
-                gotEverything = false;
+            }
+            else if (!wasAdded)
+            {
+                print("Oh no, we lost an item");
+
+                //remove from cart
+                RemoveFromCart(item.Type);
+
+                //check if amount in cart is still ok, otherwise change ui
+                if (!CanItemBeStrikedFromList(item.Type))
+                {
+                    UpdateShoppingList(shopListGUI[item.Type], false);
+                    gotEverything = false;
+                }
+            }
         }
-        if (!noChange)
-            StrikeItems(tickedOffRows);
     }
+
+    bool GotAllItems()
+    {
+        foreach(var pair in requiredItems)
+        {
+            if (!CanItemBeStrikedFromList(pair.Key))
+                return false;
+        }
+        return true;
+    }
+
+    bool CanItemBeStrikedFromList(eItemType item)
+    {
+        if (!itemsInCart.ContainsKey(item))
+            return false;
+
+        return itemsInCart[item] == requiredItems[item] ? true : false;
+    }
+
+    bool IsItemOnShoppingList(eItemType item)
+    {
+        return requiredItems.ContainsKey(item);
+    }
+
+    void AddToCart(eItemType newItem)
+    {
+        if (!itemsInCart.ContainsKey(newItem))
+            itemsInCart.Add(newItem, 1);
+        else
+            itemsInCart[newItem] += 1;
+    }
+
+    void RemoveFromCart(eItemType itemToRemove)
+    {
+        if (!itemsInCart.ContainsKey(itemToRemove))
+            return;
+        else if (itemsInCart[itemToRemove] > 1)
+            itemsInCart[itemToRemove] -= 1;
+        else
+            itemsInCart.Remove(itemToRemove);
+    }
+
+    //IEnumerator CompareCartToShoppingList()
+    //{
+    //    if (gotEverything)
+    //        yield break;
+
+    //    //Wait to make sure all items are really in cart
+    //    yield return new WaitForSeconds(0.1f);
+
+    //    //Set to false if any key is not in the cart
+    //    gotEverything = true;
+    //    //Set to false if any value is changed
+    //    noChange = true;
+
+    //    for (int i = 0; i < curEntries; i++)
+    //    {
+    //        var searchKey = requiredItems.ElementAt(i).Key;
+    //        bool gotItem = false;
+
+    //        if (itemsInCart.ContainsKey(searchKey))
+    //            if (!FixedItemAmount)
+    //                gotItem = true;
+    //            else
+    //                gotItem = itemsInCart[searchKey] >= requiredItems[searchKey] ? true : false;
+
+    //        if (shopListGUI[i] == gotItem)
+    //            noChange = false;
+    //        else
+    //            shopListGUI[i] = gotItem;
+
+    //        if (!gotItem)
+    //            gotEverything = false;
+    //    }
+
+    //    if (!noChange)
+    //        StrikeItems(shopListGUI);
+    //}
 }

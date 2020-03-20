@@ -16,7 +16,7 @@ public class ItemManager : Singleton<ItemManager>
 
     public HashSet<Item> AllMovingItems { get; private set; }
 
-    public static event Action<bool> ItemAddedToCart = delegate { };
+    public static event Action<Item, bool> CartContentChanged = delegate { };
 
     private void Awake()
     {
@@ -26,7 +26,7 @@ public class ItemManager : Singleton<ItemManager>
     }
     private void Start()
     {
-        ItemSpawn.OnItemCreation += AddToDictionary;
+        ItemSpawn.OnItemCreation += AddToAllItemsDic;
         ItemSpawn.OnItemCreation += AddItemToAllItemsByType;
         ItemCollider.ItemLocationChange += ChangeLocation;
         Shelf.ItemsPushed += MovingItemsList;
@@ -65,7 +65,7 @@ public class ItemManager : Singleton<ItemManager>
         }
     }
 
-    private void AddToDictionary(Item newItem)
+    private void AddToAllItemsDic(Item newItem)
     {
         AllItems.Add(newItem, eItemLocation.shelf);
     }
@@ -85,14 +85,20 @@ public class ItemManager : Singleton<ItemManager>
 
     void RemoveFromMovingList(Item item)
     {
-        AllMovingItems.Remove(item);
+        if (AllMovingItems.Contains(item))
+            AllMovingItems.Remove(item);
         item.ChangeIsMoving(false);
     }
 
     void AddToMovingItemsList(Item item)
     {
         AllMovingItems.Add(item);
-        item.ChangeIsMoving(true);
+        //item.ChangeIsMoving(true);
+    }
+
+    bool NoMovingItems()
+    {
+        return AllMovingItems.Count == 0 ? true : false;
     }
 
     void ChangeLocation(Item item, eItemLocation newL)
@@ -105,34 +111,26 @@ public class ItemManager : Singleton<ItemManager>
 
         if (AddedToCart(newL, oldL))
         {
+            CartContentChanged(item, true);
             RemoveFromMovingList(item);
-            ItemAddedToCart(true);
-            //StartCoroutine(ReallyAddedToCart(item));
         }
         else if (FellFromCart(newL, oldL))
         {
+            CartContentChanged(item, false);
             AddToMovingItemsList(item);
-            ItemAddedToCart(false);
         }
-        else if (FellOnGround(newL, oldL))
+        else if (FellOnGround(newL, oldL) || FellBackOnShelf(newL, oldL))
         {
             RemoveFromMovingList(item);
         }
-    }
+        else
+        {
+            print("Help, I dunno where " + item.gameObject.name + " landed!");
+        }
 
-    //IEnumerator ReallyAddedToCart(Item item)
-    //{
-    //    int wait = 0;
-
-    //    while (wait < 5)
-    //    {
-    //        yield return new WaitForSeconds(0.1f);
-    //        if ()
-    //    }
-
-    //    RemoveFromMovingList(item);
-    //    ItemAddedToCart(true);
-    //}
+        //if (NoMovingItems())
+        //    CartContentChanged(true, true);
+    }     
 
     bool LocationChanged(eItemLocation newL, eItemLocation oldL)
     {
@@ -156,7 +154,12 @@ public class ItemManager : Singleton<ItemManager>
     {
         return newL == eItemLocation.ground ? true : false;
     }
-    
+
+    bool FellBackOnShelf(eItemLocation newL, eItemLocation oldL)
+    {
+        return newL == eItemLocation.shelf ? true : false;
+    }
+
     public void AddItemToAllItemsByType(Item item)
     {
         if (AllItemsByType.ContainsKey(item.Type))
