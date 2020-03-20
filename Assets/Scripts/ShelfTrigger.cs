@@ -32,12 +32,13 @@ public class ShelfTrigger : MonoBehaviour
             justHit = true;
             HitByCart(speed);
             HitAnyShelf();
+            StartCoroutine(HitDelay());
         }        
     }
 
     IEnumerator HitDelay()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.2f);
         justHit = false;
     }
 }

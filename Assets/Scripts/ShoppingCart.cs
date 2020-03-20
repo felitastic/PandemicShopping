@@ -13,7 +13,8 @@ public class ShoppingCart : MonoBehaviour
     int maxItemsPossibleOnList = 6;
     int maxCartCapacity = 8;
     bool gotEverything;
-    int totalItemPrefabs {  get { return GameManager.Instance.AvailablePrefabCount; } }
+    bool noChange;
+    int totalItemPrefabs { get { return GameManager.Instance.AvailablePrefabCount; } }
     bool FixedItemAmount { get { return GameManager.Instance.FixedAmountInShopList; } }
     public int curEntries { get; private set; }
 
@@ -58,7 +59,7 @@ public class ShoppingCart : MonoBehaviour
 
     void SetShoppingList()
     {
-        int maxItemsOnList = !FixedItemAmount ? maxItemsPossibleOnList : maxCartCapacity + 1;        
+        int maxItemsOnList = !FixedItemAmount ? maxItemsPossibleOnList : maxCartCapacity + 1;
         //no of items in TOTAL to shop (including doubles if !noFixedAmount)
         int itemsToShop = UnityEngine.Random.Range(minItemsToShop, maxItemsOnList);
         itemsToShop = itemsToShop > totalItemPrefabs ? totalItemPrefabs - 1 : itemsToShop;
@@ -75,7 +76,7 @@ public class ShoppingCart : MonoBehaviour
                     requiredItems[newKey] += !FixedItemAmount ? 0 : amount;
                 else
                     requiredItems.Add(newKey, amount);
-                
+
                 itemsToShop -= amount;
             }
             else
@@ -114,7 +115,7 @@ public class ShoppingCart : MonoBehaviour
 
         if (!wasItemadded && gotEverything)
             gotEverything = false;
-        
+
         if ((wasItemadded && !gotEverything) || !wasItemadded)
             StartCoroutine(CompareCartToShoppingList());
     }
@@ -127,9 +128,10 @@ public class ShoppingCart : MonoBehaviour
         //Wait to make sure all items are really in cart
         yield return new WaitForSeconds(0.25f);
 
-        Dictionary<int, bool> rowsToTickOff = new Dictionary<int, bool>();
-        //set to false if one of the items of the required list is missing
+        //Set to false if any key is not in the cart
         gotEverything = true;
+        //Set to false if any value is changed
+        noChange = true;
 
         for (int i = 0; i < curEntries; i++)
         {
@@ -141,16 +143,16 @@ public class ShoppingCart : MonoBehaviour
                     gotItem = true;
                 else
                     gotItem = itemsInCart[searchKey] >= requiredItems[searchKey] ? true : false;
-                    
-            rowsToTickOff.Add(i, gotItem);
+
+            if (tickedOffRows[i] == gotItem)
+                noChange = false;
+            else
+                tickedOffRows[i] = gotItem;
+
             if (!gotItem)
                 gotEverything = false;
         }
-
-        if (rowsToTickOff == tickedOffRows)
-            yield break;
-
-        tickedOffRows = rowsToTickOff;
-        StrikeItems(rowsToTickOff);        
-    }    
+        if (!noChange)
+            StrikeItems(tickedOffRows);
+    }
 }
