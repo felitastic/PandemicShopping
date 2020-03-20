@@ -7,16 +7,14 @@ public class Movement : MonoBehaviour
     private Rigidbody rigid;
 
     [SerializeField]
-    float MovementSpeed = 5f;
+    float movementSpeed = 5f;
     [SerializeField]
-    float RotationSpeed = 5f;
+    float rotationSpeed = 5f;
     [SerializeField]
-    float SpeedBoost = 1.5f;
+    float speedBoost = 1.5f;
 
     private float rotation = 0f;
     private float movement = 0f;
-
-    public float SpeedTest;
 
     void Start()
     {
@@ -39,13 +37,13 @@ public class Movement : MonoBehaviour
             {
                 print("moving faster");
                 //speed boost on
-                MovementSpeed *= SpeedBoost;
+                movementSpeed *= speedBoost;
             }
             if (Input.GetKeyUp(KeyCode.LeftShift))
             {
                 print("moving normal again");
                 //speed boost off
-                MovementSpeed /= SpeedBoost;
+                movementSpeed /= speedBoost;
             }
         }
    
@@ -57,14 +55,14 @@ public class Movement : MonoBehaviour
             rigid.velocity = Vector3.zero;
         else
         {
-            rigid.velocity = transform.forward * MovementSpeed * movement;
-            transform.Rotate(Vector3.up * RotationSpeed * rotation * 10 * Time.fixedDeltaTime);
+            rigid.velocity = transform.forward * movementSpeed * movement;
+            transform.Rotate(Vector3.up * rotationSpeed * rotation * 10 * Time.fixedDeltaTime);
         }
     }
 
     public float GetSpeed()
     {
-        return SpeedTest = Mathf.Abs(rigid.velocity.z);
-    }    
+        return movementSpeed;
+    }
 }
 

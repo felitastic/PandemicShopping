@@ -12,12 +12,14 @@ public class ShoppingCart : MonoBehaviour
     int minItemsToShop = 1;
     int maxItemsPossibleOnList = 6;
     int maxCartCapacity = 8;
+    bool gotEverything;
     int totalItemPrefabs {  get { return GameManager.Instance.AvailablePrefabCount; } }
     bool FixedItemAmount { get { return GameManager.Instance.FixedAmountInShopList; } }
     public int curEntries { get; private set; }
 
     Dictionary<eItemType, int> requiredItems;
     Dictionary<eItemType, int> itemsInCart;
+    Dictionary<int, bool> tickedOffRows;
 
     public event Action<string[]> CreateShoppingList = delegate { };
     public event Action<Dictionary<int, bool>> StrikeItems = delegate { };
@@ -26,13 +28,14 @@ public class ShoppingCart : MonoBehaviour
     {
         requiredItems = new Dictionary<eItemType, int>();
         itemsInCart = new Dictionary<eItemType, int>();
+        tickedOffRows = new Dictionary<int, bool>();
         minItemsToShop = UnityEngine.Random.Range(1, 5);
     }
 
     private void Start()
     {
         print("Count in list: " + FixedItemAmount);
-        ItemCollider.ItemLocationChange += UpdateItemsInCart;
+        ItemManager.ItemAddedToCart += UpdateItemsInCart;
         ItemSpawn.ItemSpawnFinished += SetShoppingList;
     }
 
@@ -88,16 +91,7 @@ public class ShoppingCart : MonoBehaviour
         CreateShoppingList(WriteShoppingList());
     }
 
-    void UpdateItemsInCart(Item i, eItemLocation l)
-    {
-        Dictionary<eItemType,int> _tempItemsInCart = ItemManager.Instance.SortByItemType(ItemManager.Instance.AllItemsInCart());
-        print(_tempItemsInCart.Count + " Items in temp Cart");
-        itemsInCart = _tempItemsInCart;
-        print(itemsInCart.Count + " Items in Cart");
-        CompareCartToShoppingList();        
-    }
-
-    public string[] WriteShoppingList()
+    string[] WriteShoppingList()
     {
         string[] _lines = new string[curEntries];
 
@@ -106,13 +100,36 @@ public class ShoppingCart : MonoBehaviour
             eItemType item = requiredItems.ElementAt(i).Key;
             int count = requiredItems.ElementAt(i).Value;
             _lines[i] = !FixedItemAmount ? item.ToString() : count.ToString() + "x " + item.ToString();
+            tickedOffRows.Add(i, false);
         }
         return _lines;
     }
 
-    public void CompareCartToShoppingList()
+    void UpdateItemsInCart(bool wasItemadded)
     {
+        itemsInCart = ItemManager.Instance.SortByItemType(ItemManager.Instance.AllItemsInCart());
+
+        if (wasItemadded && gotEverything)
+            return;
+
+        if (!wasItemadded && gotEverything)
+            gotEverything = false;
+        
+        if ((wasItemadded && !gotEverything) || !wasItemadded)
+            StartCoroutine(CompareCartToShoppingList());
+    }
+
+    IEnumerator CompareCartToShoppingList()
+    {
+        if (gotEverything)
+            yield break;
+
+        //Wait to make sure all items are really in cart
+        yield return new WaitForSeconds(0.25f);
+
         Dictionary<int, bool> rowsToTickOff = new Dictionary<int, bool>();
+        //set to false if one of the items of the required list is missing
+        gotEverything = true;
 
         for (int i = 0; i < curEntries; i++)
         {
@@ -120,14 +137,20 @@ public class ShoppingCart : MonoBehaviour
             bool gotItem = false;
 
             if (itemsInCart.ContainsKey(searchKey))
-                if (FixedItemAmount)
+                if (!FixedItemAmount)
                     gotItem = true;
                 else
                     gotItem = itemsInCart[searchKey] >= requiredItems[searchKey] ? true : false;
                     
             rowsToTickOff.Add(i, gotItem);
-            //print("no " + i + " is " + gotItem);
+            if (!gotItem)
+                gotEverything = false;
         }
-        StrikeItems(rowsToTickOff);
-    }
+
+        if (rowsToTickOff == tickedOffRows)
+            yield break;
+
+        tickedOffRows = rowsToTickOff;
+        StrikeItems(rowsToTickOff);        
+    }    
 }

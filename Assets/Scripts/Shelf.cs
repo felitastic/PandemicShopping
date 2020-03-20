@@ -21,16 +21,20 @@ public class Shelf : MonoBehaviour
     public Transform StartSpawnPoint { get { return startSpawnPoint; } }
     public int ShelfID { get { return shelfID; } }
 
+    public static event System.Action<HashSet<Item>> ItemsPushed = delegate { };
+
     private void Start()
     {
         GetComponentInParent<ShelfTrigger>().HitByCart += PushItems;
     }
 
     void PushItems(float _baseForce)
-    {
-        List<Item> itemsToPush = GetRandomItemList();
+    {        
+        HashSet<Item> itemsToPush = GetRandomItemList();
         if (itemsToPush.Count == 0)
             return;
+        else
+            ItemsPushed(itemsToPush);
 
         foreach (Item item in itemsToPush)
         {
@@ -68,9 +72,9 @@ public class Shelf : MonoBehaviour
         return pushVector;
     }
 
-    List<Item> GetRandomItemList()
+    HashSet<Item> GetRandomItemList()
     {
-        List<Item> pushList = new List<Item>();
+        HashSet<Item> pushList = new HashSet<Item>();
         List<Item> currentItemList = ItemManager.Instance.AllItemsInShelf(ShelfID);
 
         if (currentItemList.Count == 0)

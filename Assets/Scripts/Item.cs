@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,12 +9,14 @@ public class Item : MonoBehaviour
     private Rigidbody rigid;
     private Vector3 pausedVelocity;
     private int shelfID = int.MinValue;
-    bool moved;
 
+    public bool IsMoving { get; private set; }
     public int MaxNoInShelf { get { return info.MaxNoInShelf; } }
     public eItemType Type { get { return info.Type; } }
     public float SpawnOffset { get { return info.SpawnOffset; } }
     public string Name { get { return info.ItemName; } }
+
+    public static event System.Action<Item> ItemStoppedMoving = delegate { };
 
     public int ShelfID
     {
@@ -54,9 +55,42 @@ public class Item : MonoBehaviour
 
     public void Move(Vector3 _pushForce)
     {
+        ChangeIsMoving(true);
         rigid.isKinematic = false;
         rigid.velocity = _pushForce;
+        StartCoroutine(WhileItemIsMoving());
     }
+
+    IEnumerator WhileItemIsMoving()
+    {
+        while (IsMoving)    
+        {
+            if (rigid.velocity.Equals(Vector3.zero))
+            {
+                ChangeIsMoving(false);
+                ItemStoppedMoving(this);
+                yield break;
+            }            
+            yield return null;
+        }
+        //yield return null;
+    }
+
+    public void ChangeIsMoving(bool value)
+    {
+        IsMoving = value;
+    }
+
+    //IEnumerator CheckIfDoneMoving()
+    //{
+    //    while (moving)
+    //    {
+    //        if (rigid.velocity == Vector3.zero)
+    //        {
+    //            moving = false;
+    //        }
+    //    }
+    //}
 
     private void OnGamePaused()
     {

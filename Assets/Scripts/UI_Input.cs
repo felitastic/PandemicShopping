@@ -17,6 +17,11 @@ public class UI_Input : MonoBehaviour
                 print("pressed R");
                 PlayerInput(eKeys.shoppinglist);
             }
+            if (Input.GetKeyUp(KeyCode.R))
+            {
+                print("stopped pressing R");
+                PlayerInput(eKeys.shoppinglist);
+            }
         }
 
         //keys that also work in pause mode

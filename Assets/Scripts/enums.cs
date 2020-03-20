@@ -10,8 +10,7 @@ public enum eItemType
 
 public enum eKeys
 {
-    none,
-    pause,
+    pause = 0,
     exit,
-    shoppinglist
+    shoppinglist    
 }

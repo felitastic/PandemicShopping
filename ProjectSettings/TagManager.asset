@@ -15,10 +15,10 @@ TagManager:
   - 
   - 
   - Ground
-  - Player
+  - InnerCart
   - Shelf
-  - 
-  - 
+  - CartBumper
+  - TooLowForCart
   - 
   - 
   - 

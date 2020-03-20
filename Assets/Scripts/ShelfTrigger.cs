@@ -20,16 +20,24 @@ public class ShelfTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (justHit)
+            return;
+
         //Debug.Log(this.gameObject.name + " was hit by " + other.gameObject.name);
         float speed = cart.GetSpeed();
 
-        if (other.gameObject.GetComponentInParent<Movement>() && speed > 0.25f)
+        if (other.gameObject.layer.Equals(11) && speed > 1.0f)
         {
-            justHit = true;
             //Debug.Log(this.gameObject.name + " was hit by the cart at speed " + speed);
+            justHit = true;
             HitByCart(speed);
             HitAnyShelf();
-        }
+        }        
+    }
+
+    IEnumerator HitDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
         justHit = false;
     }
 }

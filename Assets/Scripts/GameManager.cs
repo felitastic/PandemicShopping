@@ -11,13 +11,16 @@ public class GameManager : Singleton<GameManager>
     public bool RandomizedSpawn;
     //true: Shopping list only asks for items without specific number
     public bool FixedAmountInShopList { get; private set; }
+    //true: all shelves are fully filled
+    public bool FullShelves { get; private set; }
     public int AvailablePrefabCount { get; private set; }
 
     public static event Action OnGameStateChange = delegate { };
     private void Awake()
     {
         RandomizedSpawn = false;
-        FixedAmountInShopList = false;        
+        FixedAmountInShopList = false;
+        FullShelves = true;
         AvailablePrefabCount = FindObjectOfType<ItemSpawn>().PrefabCount();
     }
 

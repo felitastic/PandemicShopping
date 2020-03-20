@@ -14,6 +14,7 @@ public class ItemSpawn : MonoBehaviour
     Shelf[] allShelves;
     [SerializeField]
     bool random { get { return GameManager.Instance.RandomizedSpawn; } }
+    bool fullShelves { get { return GameManager.Instance.FullShelves; } }
     int chosenItem;
 
     public static event Action<Item> OnItemCreation = delegate { };
@@ -22,7 +23,6 @@ public class ItemSpawn : MonoBehaviour
     private void Start()
     {
         FillShelf();
-        print("random: " + random);
     }
 
     public int PrefabCount()
@@ -36,30 +36,34 @@ public class ItemSpawn : MonoBehaviour
 
         foreach (Shelf shelf in allShelves)
         {
-            Item _item;
+            Item itemToSpawn;
+            int itemsInShelf;
+            int shelfID = shelf.ShelfID;
 
             if (random)
             {
-                _item = itemPrefab[UnityEngine.Random.Range(0, itemPrefab.Length)];
+                itemToSpawn = itemPrefab[UnityEngine.Random.Range(0, itemPrefab.Length)];
             }
             else
             {
-                _item = chosenItem < itemPrefab.Length ? itemPrefab[chosenItem] : itemPrefab[UnityEngine.Random.Range(0, itemPrefab.Length)];
-                chosenItem++;
+                itemToSpawn = itemPrefab[chosenItem];
+                chosenItem = chosenItem >= itemPrefab.Length - 1 ? 0 : chosenItem + 1;
             }
 
             //offset for the chosen item
-            float _itemOffset = _item.SpawnOffset;
+            float itemSpawnOffset = itemToSpawn.SpawnOffset;
 
-            //get the shelfID
-            int _shelfID = shelf.ShelfID;
+            //set random no of items in shelf
+            if (!fullShelves)
+                itemsInShelf = UnityEngine.Random.Range(0, itemToSpawn.MaxNoInShelf);
+            else
+                itemsInShelf = itemToSpawn.MaxNoInShelf;
 
-            //for as many times as this item fits into a shelf
-            for (int _itemCount = 0; _itemCount < _item.MaxNoInShelf; _itemCount++)
+            //for as many items as there should be in this shelf
+            for (int _itemCount = 0; _itemCount < itemsInShelf; _itemCount++)
             {
-                //Vector3 newPos = SpawnPosition(shelf, _itemOffset, _itemCount);
-                Item newItem = Instantiate(_item, shelf.transform);
-                newItem.transform.localPosition = SpawnPosition(shelf, _itemOffset, _itemCount);
+                Item newItem = Instantiate(itemToSpawn, shelf.transform);
+                newItem.transform.localPosition = SpawnPosition(shelf, itemSpawnOffset, _itemCount);
                 newItem.ShelfID = shelf.ShelfID;
                 OnItemCreation(newItem);
             }

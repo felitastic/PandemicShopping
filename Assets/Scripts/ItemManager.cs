@@ -14,18 +14,23 @@ public class ItemManager : Singleton<ItemManager>
     public Dictionary<Item, eItemLocation> AllItems { get; private set; }
     public Dictionary<eItemType, int> AllItemsByType { get; private set; }
 
-    public static event Action ItemAddedToCart = delegate { };
+    public HashSet<Item> AllMovingItems { get; private set; }
+
+    public static event Action<bool> ItemAddedToCart = delegate { };
 
     private void Awake()
     {
         AllItems = new Dictionary<Item, eItemLocation>();
         AllItemsByType = new Dictionary<eItemType, int>();
+        AllMovingItems = new HashSet<Item>();
     }
     private void Start()
     {
         ItemSpawn.OnItemCreation += AddToDictionary;
-        ItemSpawn.OnItemCreation += SortAllItemsByType;
-        ItemCollider.ItemLocationChange += ChangeLocation;        
+        ItemSpawn.OnItemCreation += AddItemToAllItemsByType;
+        ItemCollider.ItemLocationChange += ChangeLocation;
+        Shelf.ItemsPushed += MovingItemsList;
+        Item.ItemStoppedMoving += RemoveFromMovingList;
     }
 
     private void Update()
@@ -70,17 +75,89 @@ public class ItemManager : Singleton<ItemManager>
         return AllItems.ContainsKey(item) ? AllItems[item] : eItemLocation.shelf;            
     }
 
-    public void ChangeLocation(Item item, eItemLocation newLocation)
+    void MovingItemsList(HashSet<Item> itemsPushed)
     {
-        AllItems[item] = newLocation;
-        if (newLocation == eItemLocation.cart)
+        foreach(Item i in itemsPushed)
         {
-            ItemAddedToCart();
-            print(item.Name + "is in cart");
+            AllMovingItems.Add(i);
         }
     }
 
-    public void SortAllItemsByType(Item item)
+    void RemoveFromMovingList(Item item)
+    {
+        AllMovingItems.Remove(item);
+        item.ChangeIsMoving(false);
+    }
+
+    void AddToMovingItemsList(Item item)
+    {
+        AllMovingItems.Add(item);
+        item.ChangeIsMoving(true);
+    }
+
+    void ChangeLocation(Item item, eItemLocation newL)
+    {
+        eItemLocation oldL = AllItems[item];
+        if (!LocationChanged(newL, oldL))
+            return;
+
+        AllItems[item] = newL;
+
+        if (AddedToCart(newL, oldL))
+        {
+            RemoveFromMovingList(item);
+            ItemAddedToCart(true);
+            //StartCoroutine(ReallyAddedToCart(item));
+        }
+        else if (FellFromCart(newL, oldL))
+        {
+            AddToMovingItemsList(item);
+            ItemAddedToCart(false);
+        }
+        else if (FellOnGround(newL, oldL))
+        {
+            RemoveFromMovingList(item);
+        }
+    }
+
+    //IEnumerator ReallyAddedToCart(Item item)
+    //{
+    //    int wait = 0;
+
+    //    while (wait < 5)
+    //    {
+    //        yield return new WaitForSeconds(0.1f);
+    //        if ()
+    //    }
+
+    //    RemoveFromMovingList(item);
+    //    ItemAddedToCart(true);
+    //}
+
+    bool LocationChanged(eItemLocation newL, eItemLocation oldL)
+    {
+        return newL == oldL ? false : true;
+    }
+    bool AddedToCart(eItemLocation newL, eItemLocation oldL)
+    {
+        if (newL == eItemLocation.cart && oldL != eItemLocation.cart)
+            return true;
+
+        return false;
+    }
+    bool FellFromCart(eItemLocation newL, eItemLocation oldL)
+    {
+        if (newL != eItemLocation.cart && oldL == eItemLocation.cart)
+            return true;
+
+        return false;
+    }
+    bool FellOnGround(eItemLocation newL, eItemLocation oldL)
+    {
+        return newL == eItemLocation.ground ? true : false;
+    }
+    
+    public void AddItemToAllItemsByType(Item item)
     {
         if (AllItemsByType.ContainsKey(item.Type))
         {
