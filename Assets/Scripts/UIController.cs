@@ -15,30 +15,25 @@ public class UIController : MonoBehaviour
     [SerializeField]
     Animator shoppingListAnim;
     [SerializeField]
-    bool shoppingListVisible;
-    [SerializeField]
     GameObject[] shopListStrikethrough;
-    
+
     private void Start()
     {
         shoppingCart = GetComponent<ShoppingCart>();
         shoppingCart.CreateShoppingList += WriteShoppingListUI;
         shoppingCart.UpdateShoppingList += StrikeItems;
-        UI_Input.PlayerInput += GetPlayerInput;
-        shoppingListVisible = false;
+        UI_Input.OnUI_Input += GetUIButtonInput;
+        UI_Input.ShoppingListVisibel += ShowShoppingList;
     }
 
-    void GetPlayerInput(eKeys pressedKey)
+    void GetUIButtonInput(eUI_Input ui_Input)
     {
-        switch (pressedKey)
+        switch (ui_Input)
         {
-            case eKeys.pause:
+            case eUI_Input.pause:
                 PauseGame();
                 break;
-            case eKeys.exit:
-                break;
-            case eKeys.shoppinglist:
-                ToggleShoppingList();
+            case eUI_Input.exit:
                 break;
         }
     }
@@ -48,7 +43,7 @@ public class UIController : MonoBehaviour
         if (GameManager.Instance.CurGameState != eGameState.running && GameManager.Instance.CurGameState != eGameState.paused)
             return;
 
-        ToggleMenu((int)eKeys.pause);
+        ToggleMenu((int)eUI_Input.pause);
         eGameState newGameState = GameManager.Instance.CurGameState == eGameState.running ? eGameState.paused : eGameState.running;
         GameManager.Instance.ChangeGameState(newGameState);
     }
@@ -59,11 +54,18 @@ public class UIController : MonoBehaviour
         MenuUI[menu].SetActive(active);
     }
 
-    void ToggleShoppingList()
+    void EnableShoppingList()
     {
-        string trigger = shoppingListVisible ? "disable" : "enable";
-        shoppingListAnim.SetTrigger(trigger);
-        shoppingListVisible = !shoppingListVisible;
+        shoppingListAnim.SetTrigger("enable");
+
+    }
+
+    void ShowShoppingList(bool show)
+    {
+        if (show)
+            shoppingListAnim.SetBool("visible", true);        
+        else
+            shoppingListAnim.SetBool("visible", false);
     }
 
     void WriteShoppingListUI(string[] _newList)
@@ -82,14 +84,12 @@ public class UIController : MonoBehaviour
 
     IEnumerator UpdateShoppingListUI(int whichRow, bool striked)
     {
-        if (!shoppingListVisible)
-            ToggleShoppingList();
-               
-        yield return new WaitForSeconds(0.7f);
-        shopListStrikethrough[whichRow].SetActive(striked);
-        yield return new WaitForSeconds(0.5f);
+        ShowShoppingList(true);
 
-        if(shoppingListVisible)
-            ToggleShoppingList();
+        yield return new WaitForSeconds(0.75f);
+        shopListStrikethrough[whichRow].SetActive(striked);
+        yield return new WaitForSeconds(1.0f);
+
+        ShowShoppingList(false);
     }
 }

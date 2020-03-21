@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "ItemInfo", menuName = "ScriptableObjects")]
+[CreateAssetMenu(fileName = "ItemInfo", menuName = "ScriptableObjects/ItemInfo")]
 public class ItemInfo : ScriptableObject
 {
     [Tooltip("To sort by specific type")]

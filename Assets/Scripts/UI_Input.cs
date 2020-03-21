@@ -5,33 +5,40 @@ using UnityEngine;
 
 public class UI_Input : MonoBehaviour
 {
-    public static event Action<eKeys> PlayerInput = delegate { };
-    bool keyDown = false;
+    [SerializeField]
+    //bool buttonPressed;
+
+    public static event Action<eUI_Input> OnUI_Input = delegate { };
+    public static event Action<bool> ShoppingListVisibel = delegate { };
     void Update()
     {
-        //keys than can only be pressed during active gameplay
+        //inputs than can only be pressed during active gameplay
         if (GameManager.Instance.CurGameState == eGameState.running)
         {
-            if (Input.GetKeyDown(KeyCode.R) && !keyDown)
+            if (Input.GetButtonDown("ShoppingList"))
             {
-                print("pressed R");
-                PlayerInput(eKeys.shoppinglist);
-                keyDown = true;
+                ShoppingListVisibel(true);
             }
-            if (Input.GetKeyUp(KeyCode.R))
+
+            if (Input.GetButtonUp("ShoppingList"))
             {
-                print("stopped pressing R");
-                PlayerInput(eKeys.shoppinglist);
-                keyDown = false;
+                ShoppingListVisibel(false);
             }
         }
 
-        //keys that also work in pause mode
+        //inputs that also work in pause mode
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             print("pressed Escape");
-            PlayerInput(eKeys.pause);
+            OnUI_Input(eUI_Input.pause);
         }
 
     }
+
+    //IEnumerator ButtonDelay()
+    //{
+    //    buttonPressed = true;
+    //    yield return new WaitForSeconds(0.15f);
+    //    buttonPressed = false;
+    //}
 }

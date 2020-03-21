@@ -2316,6 +2316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac6d87ff4c813ad4797b873039334f8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  save: {fileID: 11400000, guid: e528c7c941524f94083e4c8e0fbe7049, type: 2}
   RandomizedSpawn: 0
 --- !u!4 &1714766709
 Transform:

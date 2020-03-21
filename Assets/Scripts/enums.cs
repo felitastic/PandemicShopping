@@ -8,9 +8,8 @@ public enum eItemType
     Soup
 }
 
-public enum eKeys
+public enum eUI_Input
 {
     pause = 0,
-    exit,
-    shoppinglist    
+    exit    
 }

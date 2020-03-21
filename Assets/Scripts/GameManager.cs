@@ -6,6 +6,8 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager>
 {
     protected GameManager() { }
+    [SerializeField]
+    private PlayerSettings save;
     public eGameState CurGameState { get; private set; } = eGameState.loading;
     //true: items from prefab list spawn randomized on the shelfs
     public bool RandomizedSpawn;
@@ -18,10 +20,25 @@ public class GameManager : Singleton<GameManager>
     public static event Action OnGameStateChange = delegate { };
     private void Awake()
     {
-        RandomizedSpawn = true;
-        FixedAmountInShopList = false;
-        FullShelves = true;
+        if (!LoadPlayerSettings())
+            print("Could not load player settings, using default");
+
         AvailablePrefabCount = FindObjectOfType<ItemSpawn>().PrefabCount();
+        print("Game Settings\n" +
+            "Spawn items random: " + RandomizedSpawn + "\n" +
+            "Fixed Amount of items in Shopping list: " + FixedAmountInShopList + "\n" +
+            "Shelves fully stocked: " + FullShelves);
+    }
+
+    bool LoadPlayerSettings()
+    {
+        if (save == null)
+            return false;
+
+        RandomizedSpawn = save.RandomizedSpawn;
+        FixedAmountInShopList = save.FixedAmountInShopList;
+        FullShelves = save.FullShelves;
+        return true;
     }
 
     private void Start()

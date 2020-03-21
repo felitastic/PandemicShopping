@@ -9,9 +9,9 @@ using System.Linq;
 /// </summary>
 public class ShoppingCart : MonoBehaviour
 {
-    int minItemsToShop = 1;
+    int minItemsToShop = 6;
     int maxItemsPossibleOnList = 6;
-    int maxCartCapacity = 8;
+    int maxCartCapacity = 15;
     bool gotEverything;
     bool noChange;
     int totalItemPrefabs { get { return GameManager.Instance.AvailablePrefabCount; } }
@@ -37,7 +37,6 @@ public class ShoppingCart : MonoBehaviour
 
     private void Start()
     {
-        print("Count in list: " + FixedItemAmount);
         ItemManager.CartContentChanged += ItemContentInCartChanged;
         ItemSpawn.ItemSpawnFinished += SetShoppingList;
     }
@@ -118,11 +117,18 @@ public class ShoppingCart : MonoBehaviour
         {
             if (wasAdded)
             {
-                print("yay, we gained an item");
                 AddToCart(item.Type);
 
+                print(
+                    "adding " + item.gameObject.name + " to cart\n" +
+                    "now total of "+ itemsInCart[item.Type]+ " of this in cart");              
+                
                 if (!CanItemBeStrikedFromList(item.Type))
                     return;
+
+                print(
+                        item.Type + " can be striked off the list\n" +
+                        "required: " + requiredItems[item.Type] + " in cart: " + itemsInCart[item.Type]);
 
                 UpdateShoppingList(shopListGUI[item.Type], true);
                 gotEverything = GotAllItems();
@@ -130,17 +136,28 @@ public class ShoppingCart : MonoBehaviour
             }
             else if (!wasAdded)
             {
-                print("Oh no, we lost an item");
+                //was is striked off
+                bool wasStrikedOff = CanItemBeStrikedFromList(item.Type);
+                print(
+                    item.Type + " can be striked off the list: " + wasStrikedOff+"\n"+
+                    "required: " + requiredItems[item.Type] + " in cart: " + itemsInCart[item.Type]);
 
                 //remove from cart
                 RemoveFromCart(item.Type);
 
-                //check if amount in cart is still ok, otherwise change ui
-                if (!CanItemBeStrikedFromList(item.Type))
-                {
-                    UpdateShoppingList(shopListGUI[item.Type], false);
-                    gotEverything = false;
-                }
+                print(
+                "removing " + item.gameObject.name + " from cart\n" +
+                "total of " + itemsInCart[item.Type] + " of this left in cart");
+
+                //is the strikeoff state still the same
+                if (CanItemBeStrikedFromList(item.Type) == wasStrikedOff)
+                    return;
+
+                print(
+                    item.Type + "s strikedoff status has changed");
+
+                UpdateShoppingList(shopListGUI[item.Type], false);
+                    gotEverything = false;     
             }
         }
     }

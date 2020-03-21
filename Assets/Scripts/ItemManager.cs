@@ -50,8 +50,7 @@ public class ItemManager : Singleton<ItemManager>
         }
         else if (Input.GetKeyDown(KeyCode.C))
         {
-            string allitems = "All Items in Cart:\n";
-
+            string allitems = "";
             List<Item> cart = AllItemsInCart();
 
             foreach(Item item in cart)
@@ -61,7 +60,8 @@ public class ItemManager : Singleton<ItemManager>
             if (cart.Count == 0)
                 allitems = "Cart is empty :(";
 
-            print(allitems);
+            string output = cart.Count + " items in cart:\n" + allitems;
+            print(output);
         }
     }
 
