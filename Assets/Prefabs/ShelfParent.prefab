@@ -213,7 +213,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
@@ -835,7 +835,7 @@ MonoBehaviour:
   minPushMulti: 0.5
   maxPushMulti: 1
   minPushForce: 0.95
-  faceDir: 2
+  faceDir: 0
   shelfID: 1
   startSpawnPoint: {fileID: 5513863422057737837}
 --- !u!1 &5513863423197558146
@@ -887,7 +887,7 @@ MonoBehaviour:
   minPushMulti: 0.5
   maxPushMulti: 1
   minPushForce: 0.95
-  faceDir: 2
+  faceDir: 0
   shelfID: 1
   startSpawnPoint: {fileID: 5513863423197558147}
 --- !u!1 &6588674065192875910
