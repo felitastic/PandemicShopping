@@ -5,9 +5,6 @@ using UnityEngine;
 
 public class UI_Input : MonoBehaviour
 {
-    [SerializeField]
-    //bool buttonPressed;
-
     public static event Action<eUI_Input> OnUI_Input = delegate { };
     public static event Action<bool> ShoppingListVisibel = delegate { };
     void Update()
@@ -25,20 +22,24 @@ public class UI_Input : MonoBehaviour
                 ShoppingListVisibel(false);
             }
         }
-
-        //inputs that also work in pause mode
-        if (Input.GetKeyDown(KeyCode.Escape))
+        //inputs that always except in loading (nothing should work then)
+        if (GameManager.Instance.CurGameState != eGameState.loading)
         {
-            print("pressed Escape");
-            OnUI_Input(eUI_Input.pause);
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                print("pressed Escape");
+                OnUI_Input(eUI_Input.pause);
+            }
         }
-
     }
 
-    //IEnumerator ButtonDelay()
-    //{
-    //    buttonPressed = true;
-    //    yield return new WaitForSeconds(0.15f);
-    //    buttonPressed = false;
-    //}
+    public void ExitGameButton()
+    {
+        OnUI_Input(eUI_Input.exit);
+    }
+
+    public void MainMenuButton()
+    {
+        OnUI_Input(eUI_Input.toTitle);
+    }
 }

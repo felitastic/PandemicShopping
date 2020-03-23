@@ -46,6 +46,10 @@ public class Movement : MonoBehaviour
                 movementSpeed /= speedBoost;
             }
         }
+        else if (GameManager.Instance.CurGameState == eGameState.cutscene)
+        {
+            print("scripted movement possible");
+        }
    
     }
 

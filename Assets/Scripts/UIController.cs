@@ -7,18 +7,24 @@ using TMPro;
 public class UIController : MonoBehaviour
 {
     [SerializeField]
-    ShoppingCart shoppingCart;
+    CanvasGroup fadeOutScreen;
+    [SerializeField]
+    Image fadeOutColor;
     [SerializeField]
     TextMeshProUGUI ShoppingListText;
-    [SerializeField]
-    GameObject[] MenuUI;
     [SerializeField]
     Animator shoppingListAnim;
     [SerializeField]
     GameObject[] shopListStrikethrough;
+    [SerializeField]
+    GameObject[] MenuUI;
+
+    ShoppingCart shoppingCart;
+    GameManager GM;
 
     private void Start()
     {
+        GM = GameManager.Instance;
         shoppingCart = GetComponent<ShoppingCart>();
         shoppingCart.CreateShoppingList += WriteShoppingListUI;
         shoppingCart.UpdateShoppingList += StrikeItems;
@@ -34,8 +40,67 @@ public class UIController : MonoBehaviour
                 PauseGame();
                 break;
             case eUI_Input.exit:
+                StartCoroutine(ExitGame());
+                break;
+            case eUI_Input.toTitle:
+                StartCoroutine(GoToMainScreen());
                 break;
         }
+    }
+
+    IEnumerator ExitGame()
+    {
+        GM.ChangeGameState(eGameState.loading);
+        StartCoroutine(FadeOut(0.8f));
+        yield return new WaitForSeconds(1.3f);
+        print("Game quit");
+        Application.Quit();
+    }
+
+    IEnumerator FadeOut(float timeInSeconds)
+    {
+        float wait = timeInSeconds / 100;
+        while (fadeOutScreen.alpha < 1.0f)
+        {
+            fadeOutScreen.alpha += 0.01f;
+            yield return new WaitForSeconds(wait);
+        }
+    }
+
+    IEnumerator FadeOut(float timeInSeconds, Color newColor)
+    {
+        float wait = timeInSeconds / 100;
+        fadeOutColor.color = newColor;
+        fadeOutScreen.blocksRaycasts = true;
+
+        while (fadeOutScreen.alpha < 1.0f)
+        {
+            fadeOutScreen.alpha += 0.01f;
+            yield return new WaitForSeconds(wait);
+        }
+    }
+
+    IEnumerator FadeIn(float timeInSeconds)
+    {
+        float wait = timeInSeconds / 60;
+        while (fadeOutScreen.alpha >= 0.0f)
+        {
+            fadeOutScreen.alpha -= 0.01f;
+            yield return new WaitForSeconds(wait);
+        }
+        fadeOutScreen.blocksRaycasts = false;
+    }
+
+    IEnumerator GoToMainScreen()
+    {
+        //TODO deactivate shop in background
+        GM.ChangeGameState(eGameState.loading);
+        StartCoroutine(FadeOut(0.8f));
+        yield return new WaitForSeconds(1.1f);
+        ChangeWindowStatus((int)eUIMenu.main, true);
+        StartCoroutine(FadeIn(1.0f));
+        yield return new WaitForSeconds(0.8f);
+        GM.ChangeGameState(eGameState.running);
     }
 
     void PauseGame()
@@ -43,15 +108,19 @@ public class UIController : MonoBehaviour
         if (GameManager.Instance.CurGameState != eGameState.running && GameManager.Instance.CurGameState != eGameState.paused)
             return;
 
-        ToggleMenu((int)eUI_Input.pause);
+        ToggleWindowStatus((int)eUI_Input.pause);
         eGameState newGameState = GameManager.Instance.CurGameState == eGameState.running ? eGameState.paused : eGameState.running;
         GameManager.Instance.ChangeGameState(newGameState);
     }
 
-    void ToggleMenu(int menu)
+    void ToggleWindowStatus(int menu)
     {
         bool active = !MenuUI[menu].activeSelf;
         MenuUI[menu].SetActive(active);
+    }
+    void ChangeWindowStatus(int menu, bool open)
+    {
+        MenuUI[menu].SetActive(open);
     }
 
     void EnableShoppingList()
@@ -63,7 +132,7 @@ public class UIController : MonoBehaviour
     void ShowShoppingList(bool show)
     {
         if (show)
-            shoppingListAnim.SetBool("visible", true);        
+            shoppingListAnim.SetBool("visible", true);
         else
             shoppingListAnim.SetBool("visible", false);
     }
