@@ -10,7 +10,6 @@ using System;
 public class ItemManager : Singleton<ItemManager>
 {
     protected ItemManager() { }
-
     public Dictionary<Item, eItemLocation> AllItems { get; private set; }
     public Dictionary<eItemType, int> AllItemsByType { get; private set; }
 

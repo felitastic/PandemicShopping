@@ -1,10 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-//using UnityEngine.UI;
+using TMPro;
 
 public class Shelf : MonoBehaviour
 {
+    [SerializeField]    
+    TextMeshProUGUI shelfLabel;
     [SerializeField]
     int minItemsToPush = 5, maxItemsToPush = 7;
     [SerializeField]
@@ -91,6 +92,11 @@ public class Shelf : MonoBehaviour
             currentItemList.RemoveAt(item);
         }
         return pushList;
+    }
+
+    public void SetShelfLabel(string label)
+    {
+        shelfLabel.text = label;
     }
 
     //Item GetRandomItemOnShelf()

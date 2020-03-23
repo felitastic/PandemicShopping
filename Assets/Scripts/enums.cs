@@ -11,12 +11,15 @@ public enum eItemType
 public enum eUI_Input
 {
     pause = 0,
-    toTitle,
-    exit    
+    toTitle = 1,
+    exit = 2,
+    gameMode = 3,
 }
 
 public enum eUIMenu
 {
     pause = 0,
-    main = 1
+    main = 1,
+    receipt = 2,
+    gamemode = 3
 }

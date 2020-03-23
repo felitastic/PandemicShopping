@@ -11,4 +11,6 @@ public class ItemInfo : ScriptableObject
     public float SpawnOffset;
     [Tooltip("How many items fit in one shelf to fill it")]
     public int MaxNoInShelf;
+    [Tooltip("Score value on checkout")]
+    public int Value;
 }

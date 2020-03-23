@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 
 /// <summary>
 /// Spawns the items on the shelfs
@@ -12,7 +11,7 @@ public class ItemSpawn : MonoBehaviour
     Item[] itemPrefab;
     [SerializeField]
     Shelf[] allShelves;
-    [SerializeField]
+
     bool random { get { return GameManager.Instance.RandomizedSpawn; } }
     bool fullShelves { get { return GameManager.Instance.FullShelves; } }
     int chosenItem;
@@ -68,6 +67,8 @@ public class ItemSpawn : MonoBehaviour
                 newItem.gameObject.name = newItem.Name + "_" + shelfID+"_No"+ _itemCount;
                 OnItemCreation(newItem);
             }
+            //set the label for the worldspace ui
+            shelf.SetShelfLabel(itemToSpawn.Name + " " + itemToSpawn.Value+".00");
         }
         ItemSpawnFinished();
     }

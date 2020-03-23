@@ -22,8 +22,9 @@ public class UI_Input : MonoBehaviour
                 ShoppingListVisibel(false);
             }
         }
-        //inputs that always except in loading (nothing should work then)
-        if (GameManager.Instance.CurGameState != eGameState.loading)
+
+        //inputs that always except in loading (nothing should work then) and in cutscenes
+        if (GameManager.Instance.CurGameState != eGameState.loading || GameManager.Instance.CurGameState != eGameState.cutscene)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -41,5 +42,10 @@ public class UI_Input : MonoBehaviour
     public void MainMenuButton()
     {
         OnUI_Input(eUI_Input.toTitle);
+    }
+
+    public void ChooseGameMode()
+    {
+        OnUI_Input(eUI_Input.gameMode);
     }
 }

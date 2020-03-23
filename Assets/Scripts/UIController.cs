@@ -11,23 +11,26 @@ public class UIController : MonoBehaviour
     [SerializeField]
     Image fadeOutColor;
     [SerializeField]
-    TextMeshProUGUI ShoppingListText;
-    [SerializeField]
     Animator shoppingListAnim;
     [SerializeField]
     GameObject[] shopListStrikethrough;
     [SerializeField]
     GameObject[] MenuUI;
+    [SerializeField]
+    TextMeshProUGUI[] ReceiptText = new TextMeshProUGUI[2];
+    [SerializeField]
+    TextMeshProUGUI ShoppingListText;
 
     ShoppingCart shoppingCart;
     GameManager GM;
-
+       
     private void Start()
     {
         GM = GameManager.Instance;
         shoppingCart = GetComponent<ShoppingCart>();
         shoppingCart.CreateShoppingList += WriteShoppingListUI;
         shoppingCart.UpdateShoppingList += StrikeItems;
+        shoppingCart.OnReceiptPrint += SetReceipt;
         UI_Input.OnUI_Input += GetUIButtonInput;
         UI_Input.ShoppingListVisibel += ShowShoppingList;
     }
@@ -45,7 +48,20 @@ public class UIController : MonoBehaviour
             case eUI_Input.toTitle:
                 StartCoroutine(GoToMainScreen());
                 break;
+            case eUI_Input.gameMode:
+
+                break;
         }
+    }
+       
+    IEnumerator ChooseGamemode()
+    {
+        GM.ChangeGameState(eGameState.loading);
+        StartCoroutine(FadeOut(0.8f));
+        yield return new WaitForSeconds(1.0f);
+        ChangeWindowStatus((int)eUIMenu.gamemode, true);
+        StartCoroutine(FadeIn(0.8f));
+        GM.ChangeGameState(eGameState.paused);
     }
 
     IEnumerator ExitGame()
@@ -160,5 +176,45 @@ public class UIController : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         ShowShoppingList(false);
+    }
+
+    void SetReceipt(int score, List<Item> purchasedItems)
+    {
+        Queue<string> names = new Queue<string>();
+        Queue<string> values = new Queue<string>();
+
+        foreach(Item item in purchasedItems)
+        {
+            names.Enqueue(item.Name + "\n");
+            values.Enqueue(item.Value +"\n");
+        }
+
+        values.Enqueue("\nTax: 20%");
+        StartCoroutine(PrintReceipt(names, values));
+    }
+
+    IEnumerator PrintReceipt(Queue<string> names, Queue<string> values)
+    {
+        print("checking out");
+        ChangeWindowStatus((int)eUIMenu.receipt, true);
+
+        yield return new WaitForSeconds(0.7f);
+
+        for (int i = 0; i < names.Count; i++)
+        {
+            ReceiptText[0].text += names.Dequeue();
+            ReceiptText[1].text += values.Dequeue();
+
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        yield return new WaitForSeconds(0.3f);
+        ReceiptText[0].text += "\n\n" + "You were served by ";
+        yield return new WaitForSeconds(0.3f);
+        ReceiptText[0].text += "\nfelitastic & DasBilligeAlien";
+
+        yield return new WaitForSeconds(0.5f);
+        print("all items paid");
+        //TODO: reveal pay button
     }
 }

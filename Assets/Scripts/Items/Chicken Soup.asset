@@ -16,3 +16,4 @@ MonoBehaviour:
   ItemName: Chicken Soup
   SpawnOffset: -0.4
   MaxNoInShelf: 12
+  Value: 3

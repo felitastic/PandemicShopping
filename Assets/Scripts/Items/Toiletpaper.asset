@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Toiletpaper
   m_EditorClassIdentifier: 
   Type: 0
-  ItemName: Toiletpaper
+  ItemName: Toilet paper
   SpawnOffset: -0.5
   MaxNoInShelf: 9
+  Value: 5

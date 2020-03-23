@@ -15,6 +15,7 @@ public class Item : MonoBehaviour
     public eItemType Type { get { return info.Type; } }
     public float SpawnOffset { get { return info.SpawnOffset; } }
     public string Name { get { return info.ItemName; } }
+    public int Value {  get { return info.Value; } }
 
     public static event System.Action<Item> ItemStoppedMoving = delegate { };
 

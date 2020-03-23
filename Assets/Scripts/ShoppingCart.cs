@@ -9,11 +9,16 @@ using System.Linq;
 /// </summary>
 public class ShoppingCart : MonoBehaviour
 {
+    [SerializeField]
     int minItemsToShop = 6;
+    [SerializeField]
     int maxItemsPossibleOnList = 6;
+    [SerializeField]
     int maxCartCapacity = 15;
+    [SerializeField]
+    public float shopSuccessBonus = 1.20f;
     bool gotEverything;
-    bool noChange;
+
     int totalItemPrefabs { get { return GameManager.Instance.AvailablePrefabCount; } }
     bool FixedItemAmount { get { return GameManager.Instance.FixedAmountInShopList; } }
     public int curEntries { get; private set; }
@@ -24,11 +29,11 @@ public class ShoppingCart : MonoBehaviour
 
     public event Action<string[]> CreateShoppingList = delegate { };
     public event Action<int, bool> UpdateShoppingList = delegate { };
-
+    public event Action<int, List<Item>> OnReceiptPrint = delegate { };
+    
     private void Awake()
     {
         gotEverything = false;
-        noChange = false;
         requiredItems = new Dictionary<eItemType, int>();
         itemsInCart = new Dictionary<eItemType, int>();
         shopListGUI = new Dictionary<eItemType, int>();
@@ -39,6 +44,7 @@ public class ShoppingCart : MonoBehaviour
     {
         ItemManager.CartContentChanged += ItemContentInCartChanged;
         ItemSpawn.ItemSpawnFinished += SetShoppingList;
+        CutsceneController.OnScoreCheck += ItemScore;
     }
 
     private void Update()
@@ -107,6 +113,31 @@ public class ShoppingCart : MonoBehaviour
         return _lines;
     }
 
+    void ItemScore()
+    {
+        List<Item> purchasedItems = ItemManager.Instance.AllItemsInCart();
+        HashSet<eItemType> inListAndCart = new HashSet<eItemType>();
+
+        int score = 0;
+
+        //sum of the value of all items in cart 
+        foreach (Item item in purchasedItems)
+        {
+            score += item.Value;
+            if (IsItemOnShoppingList(item.Type))
+                inListAndCart.Add(item.Type);
+        }
+
+        //+1 for each item that was on the list
+        score += inListAndCart.Count;
+
+        //% bonus for completing the whole shopping list
+        if (gotEverything)
+            score = Mathf.RoundToInt((float)score * shopSuccessBonus);
+
+        OnReceiptPrint(score, purchasedItems);
+    }
+
     void ItemContentInCartChanged(Item item, bool wasAdded)
     {
         if (wasAdded && gotEverything)
@@ -142,12 +173,12 @@ public class ShoppingCart : MonoBehaviour
                     item.Type + " can be striked off the list: " + wasStrikedOff+"\n"+
                     "required: " + requiredItems[item.Type] + " in cart: " + itemsInCart[item.Type]);
 
-                //remove from cart
-                RemoveFromCart(item.Type);
-
                 print(
                 "removing " + item.gameObject.name + " from cart\n" +
                 "total of " + itemsInCart[item.Type] + " of this left in cart");
+
+                //remove from cart
+                RemoveFromCart(item.Type);
 
                 //is the strikeoff state still the same
                 if (CanItemBeStrikedFromList(item.Type) == wasStrikedOff)

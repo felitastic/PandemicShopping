@@ -57,5 +57,4 @@ public class GameManager : Singleton<GameManager>
         CurGameState = newGameState;
         OnGameStateChange();
     }
-
 }
