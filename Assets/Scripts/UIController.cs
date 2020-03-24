@@ -182,36 +182,62 @@ public class UIController : MonoBehaviour
     {
         Queue<string> names = new Queue<string>();
         Queue<string> values = new Queue<string>();
+        Queue<string> bottom = new Queue<string>();
+
+        if (purchasedItems.Count == 0)
+        {            
+            bottom.Enqueue("\n\n" + "You were served by ");
+            bottom.Enqueue("\nfelitastic & DasBilligeAlien");
+            StartCoroutine(PrintReceipt(names, values, bottom));
+            return;
+        }
 
         foreach(Item item in purchasedItems)
         {
             names.Enqueue(item.Name + "\n");
-            values.Enqueue(item.Value +"\n");
+            values.Enqueue(item.Value +".00\n");
         }
+        names.Enqueue("\nTax:");
+        values.Enqueue("\n 20 %");
+        names.Enqueue("\nTotal: ");
+        values.Enqueue("\n"+score+".00");
 
-        values.Enqueue("\nTax: 20%");
-        StartCoroutine(PrintReceipt(names, values));
+        bottom.Enqueue("\n\n" + "You were served by ");
+        bottom.Enqueue("\nfelitastic & DasBilligeAlien");
+
+        StartCoroutine(PrintReceipt(names, values, bottom));
     }
 
-    IEnumerator PrintReceipt(Queue<string> names, Queue<string> values)
-    {
+    IEnumerator PrintReceipt(Queue<string> names, Queue<string> values, Queue<string> bottom)
+    {    
         print("checking out");
+        ReceiptText[0].text = "";
+        ReceiptText[1].text = "";
         ChangeWindowStatus((int)eUIMenu.receipt, true);
-
         yield return new WaitForSeconds(0.7f);
-
-        for (int i = 0; i < names.Count; i++)
+        if (names.Count == 0 || values.Count == 0)
         {
-            ReceiptText[0].text += names.Dequeue();
-            ReceiptText[1].text += values.Dequeue();
+            ReceiptText[0].text = "Pleasy buy something next time! :)";
+            yield return new WaitForSeconds(0.4f);
+        }
+        else
+        {
+            int temp = names.Count;
+            for (int i = 0; i < temp; i++)
+            {
+                ReceiptText[0].text += names.Dequeue();
+                ReceiptText[1].text += values.Dequeue();
 
-            yield return new WaitForSeconds(0.3f);
+                //print("Line " + i + " is: " + ReceiptText[0].text + ", value: " + ReceiptText[1].text);
+                yield return new WaitForSeconds(0.4f);
+            }
         }
 
-        yield return new WaitForSeconds(0.3f);
-        ReceiptText[0].text += "\n\n" + "You were served by ";
-        yield return new WaitForSeconds(0.3f);
-        ReceiptText[0].text += "\nfelitastic & DasBilligeAlien";
+        print("bottoms up!");
+        yield return new WaitForSeconds(0.4f);
+        ReceiptText[0].text += bottom.Dequeue();
+        yield return new WaitForSeconds(0.4f);
+        ReceiptText[0].text += bottom.Dequeue();
 
         yield return new WaitForSeconds(0.5f);
         print("all items paid");

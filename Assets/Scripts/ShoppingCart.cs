@@ -116,10 +116,13 @@ public class ShoppingCart : MonoBehaviour
     void ItemScore()
     {
         List<Item> purchasedItems = ItemManager.Instance.AllItemsInCart();
+        if (purchasedItems.Count == 0)
+        {
+            OnReceiptPrint(0, purchasedItems);
+            return;
+        }
         HashSet<eItemType> inListAndCart = new HashSet<eItemType>();
-
-        int score = 0;
-
+        int score = 0;    
         //sum of the value of all items in cart 
         foreach (Item item in purchasedItems)
         {

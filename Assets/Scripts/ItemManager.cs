@@ -195,9 +195,10 @@ public class ItemManager : Singleton<ItemManager>
 
     public List<Item> AllItemsInCart()
     {
-        List<Item> cartItems = (from i in AllItems
-                                where i.Value == eItemLocation.cart
-                                select i.Key).ToList();
+        List<Item> cartItems = new List<Item>();
+        cartItems = (from i in AllItems
+                            where i.Value == eItemLocation.cart
+                            select i.Key).ToList();
         return cartItems;
     }
 
