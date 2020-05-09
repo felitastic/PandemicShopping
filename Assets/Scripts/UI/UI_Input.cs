@@ -37,6 +37,11 @@ public class UI_Input : MonoBehaviour
         }
     }
 
+    public void Retry()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);       
+    }
+
     public void ExitGameButton()
     {
         OnUI_Input(eUI_Input.exit);
