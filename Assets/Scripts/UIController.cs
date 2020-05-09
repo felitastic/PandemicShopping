@@ -7,9 +7,11 @@ using TMPro;
 public class UIController : MonoBehaviour
 {
     [SerializeField]
+    CanvasGroup ShopCloseMessage;
+    [SerializeField]
     CanvasGroup fadeOutScreen;
     [SerializeField]
-    Image fadeOutColor;
+    Image fadeOutImage;
     [SerializeField]
     Animator shoppingListAnim;
     [SerializeField]
@@ -20,10 +22,12 @@ public class UIController : MonoBehaviour
     TextMeshProUGUI[] ReceiptText = new TextMeshProUGUI[2];
     [SerializeField]
     TextMeshProUGUI ShoppingListText;
+    [SerializeField]
+    TextMeshProUGUI ShoppingTimer;
 
     ShoppingCart shoppingCart;
     GameManager GM;
-       
+    
     private void Start()
     {
         GM = GameManager.Instance;
@@ -33,6 +37,25 @@ public class UIController : MonoBehaviour
         shoppingCart.OnReceiptPrint += SetReceipt;
         UI_Input.OnUI_Input += GetUIButtonInput;
         UI_Input.ShoppingListVisibel += ShowShoppingList;
+        Timer.UpdateTimer += SetTimer;
+        CutsceneController.CloseShop += CloseShopMessage;
+        CutsceneController.CallScreenFade += CallFade;
+    }
+
+    IEnumerator CloseShopMessage(float waitInSec)
+    {
+       float wait = waitInSec / 60;
+       while (ShopCloseMessage.alpha >= 0.0f)
+        {
+            ShopCloseMessage.alpha -= 0.01f;
+            yield return new WaitForSeconds(wait);
+        }
+    }
+
+    void SetTimer(string newTime)
+    {
+        ShoppingTimer.text = newTime;
+        //TODO change timer when it comes to the last seconds
     }
 
     void GetUIButtonInput(eUI_Input ui_Input)
@@ -54,6 +77,14 @@ public class UIController : MonoBehaviour
         }
     }
        
+    void CallFade(float waitTime, bool fadeOut)
+    {
+        if (fadeOut)
+            StartCoroutine(FadeOut(waitTime));
+        else
+            StartCoroutine(FadeIn(waitTime));
+    }
+
     IEnumerator ChooseGamemode()
     {
         GM.ChangeGameState(eGameState.loading);
@@ -75,7 +106,7 @@ public class UIController : MonoBehaviour
 
     IEnumerator FadeOut(float timeInSeconds)
     {
-        float wait = timeInSeconds / 100;
+        float wait = timeInSeconds / 60;
         while (fadeOutScreen.alpha < 1.0f)
         {
             fadeOutScreen.alpha += 0.01f;
@@ -85,8 +116,8 @@ public class UIController : MonoBehaviour
 
     IEnumerator FadeOut(float timeInSeconds, Color newColor)
     {
-        float wait = timeInSeconds / 100;
-        fadeOutColor.color = newColor;
+        float wait = timeInSeconds / 60;
+        fadeOutImage.color = newColor;
         fadeOutScreen.blocksRaycasts = true;
 
         while (fadeOutScreen.alpha < 1.0f)
@@ -178,7 +209,7 @@ public class UIController : MonoBehaviour
         ShowShoppingList(false);
     }
 
-    void SetReceipt(int score, List<Item> purchasedItems)
+    void SetReceipt(int score, List<Item> purchasedItems, string percentage)
     {
         Queue<string> names = new Queue<string>();
         Queue<string> values = new Queue<string>();
@@ -198,8 +229,9 @@ public class UIController : MonoBehaviour
             values.Enqueue(item.Value +".00\n");
         }
         names.Enqueue("\nTax:");
-        values.Enqueue("\n 20 %");
+        values.Enqueue("\n+"+ percentage + "% ");
         names.Enqueue("\nTotal: ");
+
         values.Enqueue("\n"+score+".00");
 
         bottom.Enqueue("\n\n" + "You were served by ");
@@ -227,8 +259,6 @@ public class UIController : MonoBehaviour
             {
                 ReceiptText[0].text += names.Dequeue();
                 ReceiptText[1].text += values.Dequeue();
-
-                //print("Line " + i + " is: " + ReceiptText[0].text + ", value: " + ReceiptText[1].text);
                 yield return new WaitForSeconds(0.4f);
             }
         }

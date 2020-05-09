@@ -15,9 +15,14 @@ public class ShoppingCart : MonoBehaviour
     int maxItemsPossibleOnList = 6;
     [SerializeField]
     int maxCartCapacity = 15;
+    [Tooltip("Bonus for getting all items in percentage")]
     [SerializeField]
-    public float shopSuccessBonus = 1.20f;
+    public float shopSuccessBonus = 0.20f;
+    [Tooltip("Bonus for getting out in time in percentage")]
+    [SerializeField]
+    public float onTimeBonus = 0.20f;
     bool gotEverything;
+    bool onTime;
 
     int totalItemPrefabs { get { return GameManager.Instance.AvailablePrefabCount; } }
     bool FixedItemAmount { get { return GameManager.Instance.FixedAmountInShopList; } }
@@ -29,7 +34,7 @@ public class ShoppingCart : MonoBehaviour
 
     public event Action<string[]> CreateShoppingList = delegate { };
     public event Action<int, bool> UpdateShoppingList = delegate { };
-    public event Action<int, List<Item>> OnReceiptPrint = delegate { };
+    public event Action<int, List<Item>, string> OnReceiptPrint = delegate { };
     
     private void Awake()
     {
@@ -113,32 +118,43 @@ public class ShoppingCart : MonoBehaviour
         return _lines;
     }
 
-    void ItemScore()
+    void ItemScore(bool onTime)
     {
         List<Item> purchasedItems = ItemManager.Instance.AllItemsInCart();
+        string percentage = "0";
+
         if (purchasedItems.Count == 0)
         {
-            OnReceiptPrint(0, purchasedItems);
+            OnReceiptPrint(0, purchasedItems, percentage);
             return;
         }
+
+        float score = 0.0f;    
+        float totalPercentage = 0.0f;
         HashSet<eItemType> inListAndCart = new HashSet<eItemType>();
-        int score = 0;    
+
         //sum of the value of all items in cart 
         foreach (Item item in purchasedItems)
         {
             score += item.Value;
-            if (IsItemOnShoppingList(item.Type))
-                inListAndCart.Add(item.Type);
+            //if (IsItemOnShoppingList(item.Type))
+            //    inListAndCart.Add(item.Type);
         }
 
-        //+1 for each item that was on the list
-        score += inListAndCart.Count;
+        //+1 for each item that was on the list 
+        //score += inListAndCart.Count;
 
         //% bonus for completing the whole shopping list
         if (gotEverything)
-            score = Mathf.RoundToInt((float)score * shopSuccessBonus);
+            totalPercentage += shopSuccessBonus;
 
-        OnReceiptPrint(score, purchasedItems);
+        if (onTime)
+            totalPercentage += onTimeBonus;
+
+        score += (score * totalPercentage);
+        percentage = (totalPercentage*100).ToString();        
+
+        OnReceiptPrint(Mathf.RoundToInt(score), purchasedItems, percentage);
     }
 
     void ItemContentInCartChanged(Item item, bool wasAdded)

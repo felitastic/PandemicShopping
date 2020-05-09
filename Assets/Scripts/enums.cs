@@ -1,11 +1,13 @@
 ﻿public enum eItemLocation { shelf, cart, ground }
 public enum eShelfFaceDirection { down, right, up, left }
 public enum eGameState { loading, running, paused, cutscene}
+public enum eModeBool { apocalypse, fixedAmount, randomSpawn}
 
 public enum eItemType 
 {
     Toiletpaper,
-    Soup
+    Soup,
+    CannedFruit
 }
 
 public enum eUI_Input
@@ -23,3 +25,11 @@ public enum eUIMenu
     receipt = 2,
     gamemode = 3
 }
+
+public enum eCutscene
+{
+    intro,
+    checkout,
+    timeout
+}
+

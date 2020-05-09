@@ -8,6 +8,8 @@ public class GameManager : Singleton<GameManager>
     protected GameManager() { }
     [SerializeField]
     private PlayerSettings save;
+
+    public int ShoppingTimer { get; private set; }
     public eGameState CurGameState { get; private set; } = eGameState.loading;
     //true: items from prefab list spawn randomized on the shelfs
     public bool RandomizedSpawn;
@@ -29,6 +31,16 @@ public class GameManager : Singleton<GameManager>
             "Fixed Amount of items in Shopping list: " + FixedAmountInShopList + "\n" +
             "Shelves fully stocked: " + FullShelves);
     }
+    private void Start()
+    {
+        StartCoroutine(WaitForLoad());
+    }
+
+
+    public void SaveGameMode(eModeBool changeBool, bool isOn)
+    {
+           
+    }
 
     bool LoadPlayerSettings()
     {
@@ -38,12 +50,8 @@ public class GameManager : Singleton<GameManager>
         RandomizedSpawn = save.RandomizedSpawn;
         FixedAmountInShopList = save.FixedAmountInShopList;
         FullShelves = save.FullShelves;
+        ShoppingTimer = save.ShoppingTimer;
         return true;
-    }
-
-    private void Start()
-    {
-        StartCoroutine(WaitForLoad());
     }
 
     public IEnumerator WaitForLoad()
@@ -55,6 +63,7 @@ public class GameManager : Singleton<GameManager>
     public void ChangeGameState(eGameState newGameState)
     {
         CurGameState = newGameState;
+        //print("cur GameState: " + CurGameState);
         OnGameStateChange();
     }
 }

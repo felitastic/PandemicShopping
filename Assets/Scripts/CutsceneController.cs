@@ -4,39 +4,34 @@ using UnityEngine;
 
 public class CutsceneController : MonoBehaviour
 {
+    public delegate IEnumerator ClosingShopUI(float wait);
+    public static event ClosingShopUI CloseShop;
+    //public delegate IEnumerator FadeScreen(float wait, bool fadeOut);
+    public static event System.Action<float, bool> CallScreenFade;
 
-    public static event System.Action OnScoreCheck = delegate { };
+    public static event System.Action<bool> OnScoreCheck = delegate { };
+    //public static event System.Action ClosingShopUI = delegate { };
     void Start()
     {
         CheckOutTrigger.OnCheckOut += CallCutscene;
+        Timer.OnTimerEnd += CallCutscene;
     }    
 
-    void CallCutscene(int cutsceneNo)
+    void CallCutscene(eCutscene cutScene)
     {
         GameManager.Instance.ChangeGameState(eGameState.cutscene);
 
-        switch (cutsceneNo)
+        switch (cutScene)
         {
-            case 0:
-                print("playing intro");
+            case eCutscene.intro:
 
-                
                 break;
+            case eCutscene.checkout:
+                OnScoreCheck(true);
 
-            case 1:
-                print("checkout triggered");
-                OnScoreCheck();
-                //Stop timer
-
-                //OnScoreCheck
-                //check how many items from the list they got -> shopping cart
-                //check how many items in general -> shopping cart
-
-                //calculate score 
-
-                //show receipt -> ui controller string geben
-
-                //show score as price at the bottom
+                break;
+            case eCutscene.timeout:
+                StartCoroutine(TimeRanOut());
 
                 break;
             default:
@@ -44,6 +39,16 @@ public class CutsceneController : MonoBehaviour
         }
     }
 
-     
-
+    IEnumerator TimeRanOut()
+    {
+        //play sound
+        CloseShop(0.75f);
+        yield return new WaitForSeconds(0.5f);
+        CallScreenFade(0.8f, true);
+        yield return new WaitForSeconds(1.0f);
+        //teleport player
+        CallScreenFade(0.8f, false);
+        yield return new WaitForSeconds(0.5f);
+        OnScoreCheck(false);
+    }
 }
